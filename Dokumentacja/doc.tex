@@ -52,7 +52,7 @@
 
 \vspace{1cm}
 
-{\large v1.0}
+{\large v1.1}
 
 \vspace{1cm}
 
@@ -73,6 +73,7 @@
 \begin{tabular}{|p{3cm}|p{4cm}|p{6cm}|p{2cm}|}
 \hline
 Data                 & Autor             & Opis zmiany                                                               & Wersja                                                 \\ \hline
+17.12.2016                      & Maciej Grzeszczak      & Opis architektury oraz rozwinięcie opisu biznesowego  & 1.1 \\ \hline
 10.12.2016                      & Maciej Grzeszczak      & Pierwsza wersja dokumentu  & 1.0 \\ \hline
                       
 \end{tabular}%
@@ -86,7 +87,11 @@ Data                 & Autor             & Opis zmiany                          
 \section{Specyfikacja}
 \subsection{Opis biznesowy}
 
-\par Niniejszy program służy do przedstawienia różnych modeli oświetlenia w grafice 3D wykorzystując do tego scenę z poruszającymi się pojazdami, które biorą udział w wyścigu. Aplikacja jest przeznaczona do użytku dla każdego. Użytkownik oprócz poruszania się pojazdem będzie mógł przełączać między poszczególnymi modelami oświetlenia, cieniowania oraz różnymi pozycjami kamery.
+\par Niniejszy program to aplikacja przeglądarkowa, wykorzystująca technologię WebGL w postaci biblioteki three.js. Będzie ona zoptymalizowana głównie pod przeglądarkę Mozilla Firefox. 
+\par Aplikacja jest symulacją wyścigów samochodowych w 3D. Umożliwia użytkownikowi prowadzenie pojazdu za pomocą odpowiednich klawiszy i ściganie się z samochodami sterowanymi przez komputer. Dany będzie jeden, z góry określony tor po którym będzie można jeździć, sam gracz będzie mógł również go opuścić i poruszać się po całej mapie. Samochód będzie przyspieszał, hamował i skręcał w zależności od wciśniętych klawiszy, będzie można również włączyć bieg wsteczny. 
+\par Aplikacja służy również jako pokaz różnych modeli oświetlenia oraz cieniowania. Gracz będzie mógł za pomocą odpowiednich przycisków zmienić obecny model oświetlenia na model Phonga lub Blinna, jak również wybrać jeden z trzech trybów cieniowania (Phonga, Gourauda, stałe). 
+\par Oprócz tego, dostępne będą cztery kamery, umożliwiające obserwowanie wyścigów z różnych perspektyw, między innymi ze środka kabiny oraz zza pojazdu, która będzie płynnie poruszać się z pojadem, wykorzystując do tego interpolację.
+\par W planach jest również wprowadzenie większej ilości torów, możliwości ich wczytywania z tekstur, wprowadzenie nierówności terenu i dostosowywania się auta do nich, oraz użycie oddzielnych modeli do kół pojazdów, co umożliwiłoby ich kręcenie się oraz skręcanie.
 \subsection{Wymagania funkcjonalne}
 Poniższy rysunek w postaci diagramu UML przedstawia możliwe przypadki użycia systemu przez użytkownika:
 \\
@@ -102,14 +107,15 @@ Poniższy rysunek w postaci diagramu UML przedstawia możliwe przypadki użycia 
 \begin{tabular}{|p{2cm}|p{3cm}|p{6cm}|p{6cm}|}
 \hline
 Aktor                 & Nazwa             & Opis                                                               & Odpowiedź systemu                                                 \\ \hline
-\multirow{7}{*}{Użytkownik} & Przełącz kamerę na nieruchomą w kabinie pojazdu.   & Zmiana położenia kamery na kabinę pojazdu, skierowaną na drogę przed pojazdem. & Natychmiastowa zmiana pozycji kamery.            \\ \cline{2-4} 
-                      & Przełącz kamerę na nieruchomą, śledzącą scenę.       & Zmiana położenia kamery na pozycję umożliwiającą obserwowanie całej sceny z oddali.  & Natychmiastowa zmiana pozycji kamery. \\ \cline{2-4}
-                      & Przełącz kamerę na śledzącą pojazd z tyłu.       & Zmiana położenia kamery na pozycję za pojazdem. Będzie się ona poruszać wraz z nim.  & Natychmiastowa zmiana pozycji kamery. \\ \cline{2-4}
+\multirow{7}{*}{Użytkownik} & Przełącz kamerę na nieruchomą, z kabiny pojazdu.   & Zmiana położenia kamery na kabinę pojazdu, skierowaną na drogę przed pojazdem. & Natychmiastowa zmiana pozycji kamery.            \\ \cline{2-4} 
+                      & Przełącz kamerę na nieruchomą, obserwującą całą scenę.       & Zmiana położenia kamery na pozycję umożliwiającą obserwowanie całej sceny z oddali.  & Natychmiastowa zmiana pozycji kamery. \\ \cline{2-4}
+                      & Przełącz kamerę na nieruchomą, śledzącą pojazd gracza.       & Zmiana położenia kamery na pozycję, która jest nieruchoma i śledzi pojazd gracza.  & Natychmiastowa zmiana pozycji kamery. \\ \cline{2-4}
+                      & Przełącz kamerę na śledzącą pojazd z tyłu.       & Zmiana położenia kamery na pozycję za pojazdem, która porusza się za pojazdem płynnie i wykorzystuje do tego interpolację  & Natychmiastowa zmiana pozycji kamery. \\ \cline{2-4}
                       & Porusz pojazdem.       & Przemieszczenie się pojazdu pod wpływem wciśnięcia odpowiednich klawiszy.  & Przemieszczenie się pojazdu. \\ \cline{2-4}                                            
-                      & Zmień oświetlenie na model Phonga.       & Zmiana obecnego modelu oświetlenia na model Phonga.  & Natychmiastowa zmiana modelu oświetlenia na model Phonga. \\ \hline
-                      & Zmień oświetlenie na model Blinna.       & Zmiana obecnego modelu oświetlenia na model Blinna.  & Natychmiastowa zmiana modelu oświetlenia na model Blinna. \\ \hline
-					 & Zmień cieniowanie na Phonga.       & Zmiana obecnego trybu cieniowania na cieniowanie Phonga.  & Natychmiastowa zmiana trybu cieniowania na cieniowanie Phonga. \\ \hline
-					& Zmień cieniowanie na Gourauda.       & Zmiana obecnego trybu cieniowania na cieniowanie Gourauda.  & 	Natychmiastowa zmiana trybu cieniowania na cieniowanie Gourauda. \\ \hline
+                      & Zmień oświetlenie na model Phonga.       & Zmiana obecnego modelu oświetlenia na model Phonga.  & Natychmiastowa zmiana modelu oświetlenia na model Phonga. \\ \cline{2-4}
+                      & Zmień oświetlenie na model Blinna.       & Zmiana obecnego modelu oświetlenia na model Blinna.  & Natychmiastowa zmiana modelu oświetlenia na model Blinna. \\ \cline{2-4}
+					 & Zmień cieniowanie na Phonga.       & Zmiana obecnego trybu cieniowania na cieniowanie Phonga.  & Natychmiastowa zmiana trybu cieniowania na cieniowanie Phonga. \\ \cline{2-4}
+					& Zmień cieniowanie na Gourauda.       & Zmiana obecnego trybu cieniowania na cieniowanie Gourauda.  & 	Natychmiastowa zmiana trybu cieniowania na cieniowanie Gourauda. \\ \cline{2-4}
 					& Zmień cieniowanie na stałe.       & Zmiana obecnego trybu cieniowania na stałe.  & Natychmiastowa zmiana trybu cieniowania na cieniowanie stałe. \\ \hline
                       
 \end{tabular}%
@@ -136,10 +142,9 @@ Obszar wymagań &Lp & Opis                                                      
 \multirow{1}{*}{Użyteczność}    & 1               & Aplikacja będzie działała na przeglądarce Mozilla Firefox dla każdej rozdzielczości powyżej 800x600. \\ \hline
 \multirow{1}{*}{Niezawodność}   & 2               & Aplikacja będzie dostępna 24/7 pod podanym adresem. \\ \hline
 \multirow{2}{*}{Wydajność}      
-& 4               & Aplikacja będzie utrzymywać minimalny poziom 15 FPS (klatek na sekundę).  \\ \cline{2-3}
-& 5 & Aplikacja będzie korzystać z biblioteki three.js która zapewni wysoką wydajność i odpowiednie zużycie zasobów.\\ \hline
+& 3               & Aplikacja będzie utrzymywać minimalny poziom 15 FPS (klatek na sekundę).  \\ \hline
 \multirow{1}{*}{Utrzymanie}     
-& 7               & Wraz z aplikacją zostaje dostarczona instrukcja użytkownika. \\ \hline
+& 4               & Wraz z aplikacją zostaje dostarczona instrukcja użytkownika. \\ \hline
 \end{tabular}
 }
 \end{table}
@@ -152,14 +157,34 @@ Obszar wymagań &Lp & Opis                                                      
 %\par \noindent
 \par Implementacja projektu zostanie podzielona na dwie fazy:
 \begin{enumerate}
-\item \textbf{Faza tworzenia sceny (7 dni)} - stworzenie świata wraz z obiektami (pojazdami), implementacja poruszania się pojazdem oraz poruszania się i zmiany pozycji kamery.
-\item \textbf{Faza implementacji poszczególnych modelów oświetlenia oraz cieniowania (14 dni)} - implementacja modeli oświetlenia Phonga i Blinna oraz cieniowań: stałego, Phonga i Gourauda.
+\item \textbf{Faza tworzenia sceny (14 dni)} - stworzenie świata wraz z obiektami (pojazdami), implementacja poruszania się pojazdem oraz poruszania się i zmiany pozycji kamery.
+\item \textbf{Faza implementacji poszczególnych modelów oświetlenia oraz cieniowania (7 dni)} - implementacja modeli oświetlenia Phonga i Blinna oraz cieniowań: stałego, Phonga i Gourauda.
 \end{enumerate}
 \par \noindent
 
+\newpage
 \subsection{Architektura rozwiązania}
+\begin{center}
+\includegraphics[scale=1]{architecture}
+\end{center}
 
-\par Program będzie aplikacją przeglądarkową, napisaną w języku Javascript i wykorzystującą bibliotekę \textbf{three.js}, która ułatwia korzystanie z WebGL.
+Powyższe zdjęcie przedstawia szkielet architektury projektu. Poniżej znajduje się opis kolejnych elementów.
 
+\begin{enumerate}
+\item \textbf{index.html} - główny i jedyny plik html, w którym zagnieżdżony będzie HTML5 Canvas.
+\item \textbf{resources} - folder, w którym znajdują się wszystkie zasoby wykorzystywane przez aplikację:
+\begin{enumerate}
+\item models - folder z modelami 3D używanymi przez aplikację
+\item scripts - folder ze skryptami Javascript
+\begin{enumerate}
+\item core - folder zawierający pliki .js dotyczące szkieletu działania aplikacji, czyli pętli gry, liczenia fizyki, renderowania, obsługiwania interakcji użytkownika.
+\item objects - folder w którym znajdują się pliki .js definiujące wszystkie obiekty wykorzystywane w aplikacji, między innymi pojazdu, kamery, mapy.
+\item lib - folder w którym znajdują się pliki .js zewnętrznych bibliotek.
+\end{enumerate}
+\item styles - folder z wszystkimi plikami .css
+\item textures - folder z teksturami wykorzystywanymi przez aplikację
+\end{enumerate}
+\end{enumerate}
 
+Oprócz tego projekt będzie oparty na wzorcu modułów, który pomaga w organizacji całości kodu oraz uzyskania tzw. 'loose coupling', czyli jak najmniejszej zależności pomiędzy poszczególnymi częściami kodu.
 \end{document}
