@@ -9,35 +9,16 @@
 <canvas id="gl-canvas" width="800" height="600">HTML5 not supported.</canvas>
 <script type="text/javascript" src="resources/scripts/core/app.js"></script>
 <script type="text/javascript" src="resources/scripts/core/content.js"></script>
+<script type="text/javascript" src="resources/scripts/core/shaders.js"></script>
 
 <script type="text/javascript" src="resources/scripts/lib/stats.js"></script>
 <script type="text/javascript" src="resources/scripts/lib/gl-matrix.js"></script>
 
-<script id="vertexShader" type="x-shader/x-fragment">
-    precision mediump float;
-    
-    attribute vec3 vertColor;
-    attribute vec2 vertPosition;
-    varying vec3 fragColor;
-    uniform mat4 worldMatrix;
-    uniform mat4 viewMatrix;
-    uniform mat4 projectionMatrix;
-	
-    void main(){
-        fragColor = vertColor;
-        gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(vertPosition,0.0,1.0);
-    }
-</script>
-<script id="fragmentShader" type="x-shader/x-fragment">
-    precision mediump float;
-    varying vec3 fragColor;
-    void main(){
-        gl_FragColor = vec4(fragColor, 1.0);
-    }
-</script>
+<script id="car-model" type="text/javascript" src="resources/models/car.js"></script>
 
 <script>
     app.initialize();
 </script>
+
 </body>
 </html>
