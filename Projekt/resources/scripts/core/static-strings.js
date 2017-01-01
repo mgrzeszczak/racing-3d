@@ -7,5 +7,6 @@ app.names = {
     SHADER_WORLD_MATRIX : 'worldMatrix',
     SHADER_VIEW_MATRIX : 'viewMatrix',
     SHADER_PROJECTION_MATRIX : 'projectionMatrix',
-    SHADER_CAMERA_POSITION : 'camPos'
+    SHADER_CAMERA_POSITION : 'camPos',
+    SHADER_TEXTURE_COORDS : 'texture'
 };

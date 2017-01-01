@@ -18,6 +18,9 @@ uniform vec3 camPos;
 const float gamma = 2.2;
 const float shininess = 80.0;
 
+varying vec2 fragTexCoord;
+uniform sampler2D sampler;
+
 void main()
 {
    vec3 normal = normalize((worldMatrix*vec4(outNormal,1.0)).xyz);
@@ -33,7 +36,7 @@ void main()
      specular = pow(specAngle, shininess);
 
    }
-   vec3 textureColor = vec3(0.5,0.05,0.05);
+   vec3 textureColor = texture2D(sampler, fragTexCoord).xyz;
    vec3 colorLinear = ambient + lambertian * (lightColor.xyz*textureColor.xyz) + specular * lightColor;
    // apply gamma correction (assume ambientColor, diffuseColor and specColor
    // have been linearized, i.e. have no gamma correction in them)

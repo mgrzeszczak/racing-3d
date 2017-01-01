@@ -3,6 +3,7 @@ precision mediump float;
 attribute vec3 position;
 //attribute vec3 texture;
 attribute vec3 inNormal;
+attribute vec2 texture;
 
 varying vec3 vecToLight;
 varying vec3 normal;
@@ -22,6 +23,8 @@ uniform vec3 camPos;
 
 const float gamma = 2.2;
 const float shininess = 30.0;
+
+uniform sampler2D sampler;
 
 void main()
 {
@@ -43,7 +46,7 @@ void main()
     specular = pow(specAngle, shininess);
   }
 
-  vec3 textureColor = vec3(0.5,0.05,0.05);
+  vec3 textureColor = texture2D(sampler, texture).xyz;
   vec3 colorLinear = ambient + lambertian * (lightColor.xyz*textureColor.xyz) + specular * lightColor;
   // apply gamma correction (assume ambientColor, diffuseColor and specColor
   // have been linearized, i.e. have no gamma correction in them)

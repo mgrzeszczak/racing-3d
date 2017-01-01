@@ -4,6 +4,9 @@ attribute vec3 position;
 //attribute vec3 texture;
 attribute vec3 inNormal;
 
+attribute vec2 texture;
+varying vec2 fragTexCoord;
+
 varying vec3 vecToLight;
 varying vec3 normal;
 varying vec3 fragColor;
@@ -31,7 +34,7 @@ void main()
   worldPosition = (worldMatrix * vec4(position,1.0)).xyz;
   vecToLight = normalize(lightPos-worldPosition);
   outNormal = inNormal;
-
+  fragTexCoord = texture;
   /*
 
 

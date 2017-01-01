@@ -18,7 +18,8 @@ var app = (function(){
     }
 
     function initObjects(){
-        var model = app.modelLoader.loadModel('resources/models/car.json',gl,shaderProgram);
+        var model = app.modelLoader.loadModel('resources/models/formula.json',gl,shaderProgram);
+        console.log(model.model);
         car = new app.objects.object([0,0,0],model);
         camera = new app.objects.camera([0,5,-5],[0,0,0]);
         light = new app.objects.light([0,5,0],[1.0,1.0,1.0],[0.1,0.1,0.1]);
@@ -27,16 +28,7 @@ var app = (function(){
 
     function initShaders(){
         app.shaderLoader.initShaders(gl);
-        /*var vertexShaderText = null;
-        var fragmentShaderText = null;
-        loadTextResource('resources/shaders/vertexShader.glsl',function(data){
-            vertexShaderText = data;
-        });
-        loadTextResource('resources/shaders/fragmentShader.glsl',function(data){
-            fragmentShaderText = data;
-        });
-        shaderProgram = app.shaderLoader.createShaderProgram(gl,vertexShaderText,fragmentShaderText);*/
-        shaderProgram = app.shaderLoader.getShaderProgram(app.shading.GOURAUD,app.lighting.PHONG);
+        shaderProgram = app.shaderLoader.getShaderProgram(app.shading.PHONG,app.lighting.PHONG);
         gl.useProgram(shaderProgram);
     }
 
