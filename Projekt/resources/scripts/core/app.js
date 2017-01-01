@@ -6,6 +6,7 @@ var app = (function(){
     var shaderProgram;
 
     var car, camera, light, world;
+    var terrain;
 
     function initialize(){
         initGL();
@@ -18,10 +19,10 @@ var app = (function(){
     }
 
     function initObjects(){
+        terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain'),1,1);
         var model = app.modelLoader.loadModel('resources/models/formula.json',gl,shaderProgram);
-        console.log(model.model);
         car = new app.objects.object([0,0,0],model);
-        camera = new app.objects.camera([0,5,-5],[0,0,0]);
+        camera = new app.objects.camera([0,10,-10],[0,0,0]);
         light = new app.objects.light([0,5,0],[1.0,1.0,1.0],[0.1,0.1,0.1]);
         world = new app.objects.world(light,[],camera,mat4.create());
     }
@@ -50,7 +51,6 @@ var app = (function(){
 
     function renderLoop(){
         performanceMonitor.begin();
-        updateUniforms();
         render();
         performanceMonitor.end();
         requestAnimationFrame(renderLoop);
@@ -59,8 +59,29 @@ var app = (function(){
     function render() {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+
+
+        gl.useProgram(app.shaderLoader.getTerrainShader());
+        var terrainShader = app.shaderLoader.getTerrainShader();
+        var viewMatrixUniformLocation = gl.getUniformLocation(terrainShader,app.names.SHADER_VIEW_MATRIX);
+        var projectionMatrixUniformLocation = gl.getUniformLocation(terrainShader,app.names.SHADER_PROJECTION_MATRIX);
+        var worldMatrixUniformLocation = gl.getUniformLocation(terrainShader,app.names.SHADER_WORLD_MATRIX);
+        mat4.perspective(world.projectionMatrix,glMatrix.toRadian(45),canvas.width/canvas.height,0.1,1000.0);
+        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,mat4.create());
+        gl.uniformMatrix4fv(viewMatrixUniformLocation,false,camera.getViewMatrix());
+        gl.uniformMatrix4fv(projectionMatrixUniformLocation,false,world.projectionMatrix);
+        terrain.render(gl,terrainShader);
+
+
+
+
+        gl.useProgram(shaderProgram);
+        updateUniforms();
         car.update();
         car.render(gl,shaderProgram);
+
+
     }
 
     function updateUniforms(){
