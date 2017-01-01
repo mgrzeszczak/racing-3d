@@ -6,19 +6,25 @@
     <link rel="stylesheet" href="resources/styles/style.css"/>
 </head>
 <body>
-<canvas id="gl-canvas" width="800" height="600">HTML5 not supported.</canvas>
+<canvas id="gl-canvas">HTML5 not supported.</canvas>
 <script type="text/javascript" src="resources/scripts/core/app.js"></script>
 <script type="text/javascript" src="resources/scripts/core/content.js"></script>
+<script type="text/javascript" src="resources/scripts/core/model-loader.js"></script>
+<script type="text/javascript" src="resources/scripts/core/static-strings.js"></script>
+<script type="text/javascript" src="resources/scripts/core/util.js"></script>
 <script type="text/javascript" src="resources/scripts/core/shaders.js"></script>
+<script type="text/javascript" src="resources/scripts/objects/objects.js"></script>
+<script type="text/javascript" src="resources/scripts/objects/object.js"></script>
+
+<script type="text/javascript" src="resources/scripts/objects/light.js"></script>
+<script type="text/javascript" src="resources/scripts/objects/camera.js"></script>
+<script type="text/javascript" src="resources/scripts/objects/world.js"></script>
 
 <script type="text/javascript" src="resources/scripts/lib/stats.js"></script>
 <script type="text/javascript" src="resources/scripts/lib/gl-matrix.js"></script>
 
-<script id="car-model" type="text/javascript" src="resources/models/car.js"></script>
-
 <script>
     app.initialize();
 </script>
-
 </body>
 </html>

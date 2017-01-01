@@ -1,49 +1,8 @@
-app.shaders = {
-
-    vertexShaderText :
-        [
-            'precision mediump float;',
-            '',
-            'attribute vec3 vertPosition;',
-            '//attribute vec3 vertColor;',
-            'attribute vec3 inNormal;',
-            'varying vec3 outNormal;',
-            'varying vec3 fragColor;',
-            'uniform mat4 worldMatrix;',
-            'uniform mat4 viewMatrix;',
-            'uniform mat4 projectionMatrix;',
-            '',
-            'void main()',
-            '{',
-            '  outNormal = inNormal;',
-            '  vec3 ambient = vec3(0.1, 0.1, 0.1);',
-            '  vec3 color = vec3(1.0, 1.0, 1.0) * min((max(dot(normalize(outNormal), vec3(0.0,1.0,0.0)), 0.0) + ambient),1.0);',
-            '  fragColor = color;',
-            '  gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(vertPosition, 1.0);',
-            '}'
-        ].join('\n'),
-
-    fragmentShaderText :
-    [
-        'precision mediump float;',
-        '',
-        'varying vec3 fragColor;',
-        'varying vec3 outNormal;',
-        'void main()',
-        '{',
-        '  //vec3 ambient = vec3(0.1, 0.1, 0.1);',
-        '  //vec3 color = vec3(1.0, 1.0, 1.0) * min((max(dot(normalize(outNormal), vec3(0.0,1.0,0.0)), 0.0) + ambient),1.0);',
-        '  vec3 color = fragColor;',
-        '  gl_FragColor = vec4(color, 1.0);',
-        '}'
-    ].join('\n')
-
-};
-
 app.shaderLoader = (function(){
+
+    var shaderPrograms = {};
+
     function createShaderProgram(gl,vertexShaderText,fragmentShaderText){
-        //vertexShaderText = document.getElementById('vertexShader').text;
-        //fragmentShaderText = document.getElementById('fragmentShader').text;
 
         var vertexShader = gl.createShader(gl.VERTEX_SHADER);
         var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -76,7 +35,54 @@ app.shaderLoader = (function(){
         return shaderProgram;
     }
 
-    return {
-        createShaderProgram : createShaderProgram
+    function initShaders(){
+
     }
+
+    function getShaderProgram(shading,lighting){
+        switch (shading) {
+            case app.shading.FLAT:
+                switch (lighting){
+                    case app.lighting.PHONG:
+                        return '';
+                    case app.lighting.BLINN:
+                        return '';
+                }
+                break;
+            case app.shading.GOURAUD:
+                switch (lighting){
+                    case app.lighting.PHONG:
+                        return '';
+                    case app.lighting.BLINN:
+                        return '';
+                }
+                break;
+            case app.shading.PHONG:
+                switch (lighting){
+                    case app.lighting.PHONG:
+                        return '';
+                    case app.lighting.BLINN:
+                        return '';
+                }
+                break;
+        }
+    }
+
+    return {
+        createShaderProgram : createShaderProgram,
+        initShaders : initShaders,
+        getShaderProgram : getShaderProgram
+    }
+
 })();
+
+app.shading = {
+    FLAT : 1,
+    GOURAUD : 2,
+    PHONG : 3
+};
+
+app.lighting = {
+    PHONG : 1,
+    BLINN : 2
+};
