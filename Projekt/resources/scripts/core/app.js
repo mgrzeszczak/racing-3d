@@ -20,13 +20,14 @@ var app = (function(){
     function initObjects(){
         var model = app.modelLoader.loadModel('resources/models/car.json',gl,shaderProgram);
         car = new app.objects.object([0,0,0],model);
-        camera = new app.objects.camera([0,10,-10],[0,0,0]);
-        light = new app.objects.light([0,1000,0],[1.0,1.0,1.0],[0.1,0.1,0.1]);
+        camera = new app.objects.camera([0,5,-5],[0,0,0]);
+        light = new app.objects.light([0,5,0],[1.0,1.0,1.0],[0.1,0.1,0.1]);
         world = new app.objects.world(light,[],camera,mat4.create());
     }
 
     function initShaders(){
-        var vertexShaderText = null;
+        app.shaderLoader.initShaders(gl);
+        /*var vertexShaderText = null;
         var fragmentShaderText = null;
         loadTextResource('resources/shaders/vertexShader.glsl',function(data){
             vertexShaderText = data;
@@ -34,7 +35,8 @@ var app = (function(){
         loadTextResource('resources/shaders/fragmentShader.glsl',function(data){
             fragmentShaderText = data;
         });
-        shaderProgram = app.shaderLoader.createShaderProgram(gl,vertexShaderText,fragmentShaderText);
+        shaderProgram = app.shaderLoader.createShaderProgram(gl,vertexShaderText,fragmentShaderText);*/
+        shaderProgram = app.shaderLoader.getShaderProgram(app.shading.GOURAUD,app.lighting.PHONG);
         gl.useProgram(shaderProgram);
     }
 
@@ -75,10 +77,13 @@ var app = (function(){
         var lightPosUniformLocation = gl.getUniformLocation(shaderProgram,app.names.SHADER_LIGHT_POSITION);
         var viewMatrixUniformLocation = gl.getUniformLocation(shaderProgram,app.names.SHADER_VIEW_MATRIX);
         var projectionMatrixUniformLocation = gl.getUniformLocation(shaderProgram,app.names.SHADER_PROJECTION_MATRIX);
+        var cameraPositionUniformLocation = gl.getUniformLocation(shaderProgram,app.names.SHADER_CAMERA_POSITION);
 
         gl.uniform3fv(ambientUniformLocation,light.ambient);
         gl.uniform3fv(lightColorUniformLocation,light.color);
         gl.uniform3fv(lightPosUniformLocation,light.position);
+
+        gl.uniform3fv(cameraPositionUniformLocation,camera.position);
 
         mat4.perspective(world.projectionMatrix,glMatrix.toRadian(45),canvas.width/canvas.height,0.1,1000.0);
 
@@ -114,7 +119,11 @@ var app = (function(){
     }
 
     return {
-        initialize: initialize
+        initialize: initialize,
+        useShader : function(shader){
+            shaderProgram = shader;
+            gl.useProgram(shader);
+        }
     }
 
 })();

@@ -35,37 +35,28 @@ app.shaderLoader = (function(){
         return shaderProgram;
     }
 
-    function initShaders(){
+    function initShaders(gl){
+        var basicVertexShader, phongVertexShader, blinnVertexShader;
+        var phongFragmentShader, basicFragmentShader, blinnFragmentShader;
+        loadTextResource('resources/shaders/basic-vertex-shader.glsl',function(text){basicVertexShader=text;});
+        loadTextResource('resources/shaders/basic-fragment-shader.glsl',function(text){basicFragmentShader=text;});
+        loadTextResource('resources/shaders/gouraud-phong-vertex-shader.glsl',function(text){phongVertexShader=text;});
+        loadTextResource('resources/shaders/gouraud-blinn-vertex-shader.glsl',function(text){blinnVertexShader=text;});
+        loadTextResource('resources/shaders/blinn-fragment-shader.glsl',function(text){blinnFragmentShader=text;});
+        loadTextResource('resources/shaders/phong-fragment-shader.glsl',function(text){phongFragmentShader=text;});
 
+        shaderPrograms[app.shading.GOURAUD*3+app.lighting.PHONG] = createShaderProgram(gl,phongVertexShader,basicFragmentShader);
+        shaderPrograms[app.shading.GOURAUD*3+app.lighting.BLINN] = createShaderProgram(gl,blinnVertexShader,basicFragmentShader);
+
+        shaderPrograms[app.shading.FLAT*3+app.lighting.PHONG] = createShaderProgram(gl,phongVertexShader,basicFragmentShader);
+        shaderPrograms[app.shading.FLAT*3+app.lighting.BLINN] = createShaderProgram(gl,blinnVertexShader,basicFragmentShader);
+
+        shaderPrograms[app.shading.PHONG*3+app.lighting.PHONG] = createShaderProgram(gl,basicVertexShader,phongFragmentShader);
+        shaderPrograms[app.shading.PHONG*3+app.lighting.BLINN] = createShaderProgram(gl,basicVertexShader,blinnFragmentShader);
     }
 
     function getShaderProgram(shading,lighting){
-        switch (shading) {
-            case app.shading.FLAT:
-                switch (lighting){
-                    case app.lighting.PHONG:
-                        return '';
-                    case app.lighting.BLINN:
-                        return '';
-                }
-                break;
-            case app.shading.GOURAUD:
-                switch (lighting){
-                    case app.lighting.PHONG:
-                        return '';
-                    case app.lighting.BLINN:
-                        return '';
-                }
-                break;
-            case app.shading.PHONG:
-                switch (lighting){
-                    case app.lighting.PHONG:
-                        return '';
-                    case app.lighting.BLINN:
-                        return '';
-                }
-                break;
-        }
+        return shaderPrograms[shading*3+lighting];
     }
 
     return {

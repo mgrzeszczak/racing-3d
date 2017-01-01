@@ -12,12 +12,53 @@ app.modelLoader = (function(){
         }
     }
 
+    function calculateFlatNormals(model){
+        model.meshes.forEach(function(mesh){
+            var normals = [];
+            for (var j=0;j<mesh.normals.length;j++){
+                normals[j] = mesh.normals[j];
+            }
+            var faces = mesh.faces;
+            for (var i=0;i<faces.length;i+=3){
+                var v1,v2,v3;
+                v1 = 3*faces[i];
+                v2 = 3*faces[i+1];
+                v3 = 3*faces[i+2];
+                var normal = [0,0,0];
+
+                normal[0] += normals[v1];
+                normal[1] += normals[v1+1];
+                normal[2] += normals[v1+2];
+                normal[0] += normals[v2];
+                normal[1] += normals[v2+1];
+                normal[2] += normals[v2+2];
+                normal[0] += normals[v3];
+                normal[1] += normals[v3+1];
+                normal[2] += normals[v3+2];
+
+                normal = [normal[0]/3,normal[1]/3,normal[2]/3];
+
+                normals[v1] = normal[0];
+                normals[v1+1] = normal[1];
+                normals[v1+2] = normal[2];
+                normals[v2] = normal[0];
+                normals[v2+1] = normal[1];
+                normals[v2+2] = normal[2];
+                normals[v3] = normal[0];
+                normals[v3+1] = normal[1];
+                normals[v3+2] = normal[2];
+            }
+         mesh.flatNormals = normals;
+        });
+    }
+
     function loadModel(path,gl){
         var model = null;
         loadJSONModel(path,function(data){
             model = data;
         });
         transformFaces(model);
+        calculateFlatNormals(model);
 
         function initBuffer(type,data){
             var buffer = gl.createBuffer();
@@ -42,7 +83,7 @@ app.modelLoader = (function(){
                 3 * Float32Array.BYTES_PER_ELEMENT, // size of individual vertex
                 0  // offset from the beginning
             );
-            gl.bindBuffer(gl.ARRAY_BUFFER, mesh.normalBuffer);
+            gl.bindBuffer(gl.ARRAY_BUFFER, app.settings.FLAT_SHADING? mesh.flatNormalBuffer : mesh.normalBuffer);
             gl.vertexAttribPointer(
                 normalAttributeLocation, // attrib location
                 3, // number of elements per attrib
@@ -71,6 +112,7 @@ app.modelLoader = (function(){
             mesh.vertexBuffer = initBuffer(gl.ARRAY_BUFFER,new Float32Array(mesh.vertices));
             mesh.indexBuffer = initBuffer(gl.ELEMENT_ARRAY_BUFFER,mesh.faces);
             mesh.normalBuffer = initBuffer(gl.ARRAY_BUFFER,new Float32Array(mesh.normals));
+            mesh.flatNormalBuffer = initBuffer(gl.ARRAY_BUFFER,new Float32Array(mesh.flatNormals));
         });
 
         return {
