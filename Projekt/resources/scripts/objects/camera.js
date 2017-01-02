@@ -8,6 +8,30 @@ app.objects.camera = function(position,lookAt){
     this.getViewMatrix = function(){
         mat4.lookAt(this.viewMatrix,this.position,this.lookAt,this.up);
         return this.viewMatrix;
-    }
+    };
 
+    this.update = function(deltaTime){
+        if (this.followTarget != undefined){
+            this.position = this.followTarget.getPosition();
+            var forwardVector = this.followTarget.getForwardVector();
+
+            var lookAt = vec3.clone(forwardVector);
+            vec3.scale(lookAt,lookAt,10);
+            vec3.add(lookAt,this.position,lookAt);
+            this.lookAt = lookAt;
+
+            vec3.scale(forwardVector,forwardVector,10);
+            vec3.subtract(this.position,this.position,forwardVector);
+            vec3.add(this.position,this.position,[0,5,0]);
+        }
+    };
+
+    this.setTarget = function(target){
+        this.followTarget = undefined;
+        this.lookAt = target.position===undefined? target : target.position;
+    };
+
+    this.followTarget = function(target){
+        this.followTarget = target;
+    };
 };

@@ -22,8 +22,10 @@ var app = (function(){
         terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain'),1,1);
         var model = app.modelLoader.loadModel('resources/models/formula.json',gl,shaderProgram);
         car = new app.objects.object([0,0,0],model);
-        camera = new app.objects.camera([0,20,-20],[0,0,0]);
-        light = new app.objects.light([0,100,0],[1.0,1.0,1.0],[0.1,0.1,0.1]);
+        camera = new app.objects.camera([0,50,-50],[0,0,0]);
+        //camera.setTarget(car);
+        camera.followTarget(car);
+        light = new app.objects.light([0,10,0],[1.0,1.0,1.0],[0.1,0.1,0.1]);
         world = new app.objects.world(light,[],camera,mat4.create());
     }
 
@@ -49,11 +51,22 @@ var app = (function(){
         gl.cullFace(gl.BACK);
     }
 
-    function renderLoop(){
-        performanceMonitor.begin();
-        render();
-        performanceMonitor.end();
-        requestAnimationFrame(renderLoop);
+    var renderLoop = (function(){
+        var prevTime = 0;
+        return function(currTime){
+            var deltaTime = currTime - prevTime;
+            prevTime = currTime;
+            update();
+            performanceMonitor.begin();
+            render();
+            performanceMonitor.end();
+            requestAnimationFrame(renderLoop);
+        }
+    })();
+
+    function update(deltaTime){
+        car.update(deltaTime);
+        camera.update(deltaTime);
     }
 
     function render() {
@@ -80,8 +93,6 @@ var app = (function(){
         updateUniforms();
         car.update();
         car.render(gl,shaderProgram);
-
-
     }
 
     function updateUniforms(){

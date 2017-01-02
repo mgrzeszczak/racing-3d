@@ -21,14 +21,23 @@ app.objects.object = function(position,model){
         this.model.render(gl,shader);
     };
 
-    this.update = function(){
+    this.update = function(deltaTime){
         var angle = performance.now()/1000 / 6*2*Math.PI;
         this.rotation = [0,angle,0];
 
-        var forward = vec3.clone(this.forwardVector);
-        mathUtils.rotateVec3(forward,this.rotation);
+        var forward = this.getForwardVector();
         vec3.scale(forward,forward,0.1);
         vec3.add(this.position,this.position,forward);
+    };
+
+    this.getPosition = function(){
+        return vec3.clone(this.position);
+    };
+
+    this.getForwardVector = function(){
+        var forward = vec3.clone(this.forwardVector);
+        mathUtils.rotateVec3(forward,this.rotation);
+        return forward;
     };
 
 };
