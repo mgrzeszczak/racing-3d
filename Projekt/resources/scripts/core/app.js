@@ -22,8 +22,8 @@ var app = (function(){
         terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain'),1,1);
         var model = app.modelLoader.loadModel('resources/models/formula.json',gl,shaderProgram);
         car = new app.objects.object([0,0,0],model);
-        camera = new app.objects.camera([0,10,-10],[0,0,0]);
-        light = new app.objects.light([0,5,0],[1.0,1.0,1.0],[0.1,0.1,0.1]);
+        camera = new app.objects.camera([0,20,-20],[0,0,0]);
+        light = new app.objects.light([0,100,0],[1.0,1.0,1.0],[0.1,0.1,0.1]);
         world = new app.objects.world(light,[],camera,mat4.create());
     }
 

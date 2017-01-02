@@ -8,5 +8,7 @@ app.names = {
     SHADER_VIEW_MATRIX : 'viewMatrix',
     SHADER_PROJECTION_MATRIX : 'projectionMatrix',
     SHADER_CAMERA_POSITION : 'camPos',
-    SHADER_TEXTURE_COORDS : 'texture'
+    SHADER_TEXTURE_COORDS : 'texture',
+    SHADER_UNIFORM_HAS_TEXTURE : 'hasTexture',
+    SHADER_UNIFORM_COLOR : 'color'
 };

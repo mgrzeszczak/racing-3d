@@ -34,7 +34,7 @@ void main()
   vecToLight = normalize(lightPos-worldPosition);
   outNormal = inNormal;
 
-  vec3 normal = normalize((worldMatrix*vec4(outNormal,1.0)).xyz);
+  vec3 normal = normalize((worldMatrix*vec4(outNormal,0.0)).xyz);
 
   float lambertian = max(dot(vecToLight,normal), 0.0);
   float specular = 0.0;
