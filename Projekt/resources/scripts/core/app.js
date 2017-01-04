@@ -20,12 +20,18 @@ var app = (function(){
 
     function initObjects(){
         terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain'),1,1);
-        var model = app.modelLoader.loadModel('resources/models/f1.json',gl,shaderProgram);
+        var model = app.modelLoader.loadModel('resources/models/f1.json',gl,'formula-body');
         console.log(model);
-        var wheel = app.modelLoader.loadModel('resources/models/wheel.json',gl,shaderProgram);
+        var wheel = app.modelLoader.loadModel('resources/models/wheel.json',gl,'formula-wheel');
+
+
+        model.model.wheeloffset.fl[2]-=0.4;
+        model.model.wheeloffset.fr[2]-=0.4;
+        model.model.wheeloffset.rl[2]-=0.4;
+        model.model.wheeloffset.rr[2]-=0.4;
 
         car = new app.objects.object([0,0,0],model,wheel);
-        camera = new app.objects.camera([0,10,-10],[0,0,0]);
+        camera = new app.objects.camera([0,5,-5],[0,0,0]);
         camera.setTarget(car);
         //camera.followTarget(car);
         light = new app.objects.light([0,1000,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
@@ -136,10 +142,10 @@ var app = (function(){
             case ' ':
                 break;
             case 'w':
-                car.setSpeed(0.15);
+                car.setSpeed(0.01);
                 break;
             case 's':
-                car.setSpeed(-0.15);
+                car.setSpeed(-0.01);
                 break;
             case 'a':
                 car.wheelRotateLeft = true;

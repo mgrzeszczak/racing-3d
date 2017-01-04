@@ -52,7 +52,7 @@ app.modelLoader = (function(){
         });
     }
 
-    function loadModel(path,gl){
+    function loadModel(path,gl,textureId){
 
         var texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -64,7 +64,8 @@ app.modelLoader = (function(){
         gl.texImage2D(
             gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
             gl.UNSIGNED_BYTE,
-            document.getElementById('formula-body')
+            document.getElementById(textureId)
+            //document.getElementById('formula-body')
         );
         gl.bindTexture(gl.TEXTURE_2D, null);
 

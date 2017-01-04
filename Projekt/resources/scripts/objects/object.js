@@ -15,13 +15,30 @@ app.objects.object = function(position,bodyModel,wheelModel){
     this.speed = 0.0;
     this.wheelAngle = 0.0;
     this.maxAngle = 30;
+
+
     this.wheelRotateLeft = false;
     this.wheelRotateRight = false;
+    this.wheelXAngle = 0.0;
+    this.wheelRadius = 2*this.wheelOffset['fl'][2];
 
     //this.forces = [];
     //this.netForce = vec3.fromValues(0,0,0);
     //this.acceleration = vec3.fromValues(0,0,0);
     //this.velocity = vec3.fromValues(0,0,0);
+
+    this.renderWheel = function(gl,shader,offset,yRotation){
+        var worldMatrixUniformLocation = gl.getUniformLocation(shader,app.names.SHADER_WORLD_MATRIX);
+        var pos = vec3.clone(offset);
+        mathUtils.rotateMat4(this.worldMatrix,yRotation);
+        mat4.fromTranslation(this.workMatrix,pos);
+        mat4.multiply(this.worldMatrix,this.workMatrix,this.worldMatrix);
+        mathUtils.rotateCurrMat4(this.worldMatrix,this.rotation);
+        mat4.fromTranslation(this.workMatrix,position);
+        mat4.multiply(this.worldMatrix,this.workMatrix,this.worldMatrix);
+        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,this.worldMatrix);
+        this.wheelModel.render(gl,shader);
+    };
 
     this.render = function(gl,shader){
         mat4.identity(this.worldMatrix);
@@ -37,55 +54,13 @@ app.objects.object = function(position,bodyModel,wheelModel){
 
         var angle = this.wheelAngle/360  * 2 * Math.PI;
 
-        //var rotLeft = [0,Math.PI,0];
-        var rot = [0,-angle,0];
-
-
-        var pos = vec3.clone(this.wheelOffset['fl']);
-        mathUtils.rotateMat4(this.worldMatrix,rot);
-        mat4.fromTranslation(this.workMatrix,pos);
-        mat4.multiply(this.worldMatrix,this.workMatrix,this.worldMatrix);
-        mathUtils.rotateCurrMat4(this.worldMatrix,this.rotation);
-        mat4.fromTranslation(this.workMatrix,position);
-        mat4.multiply(this.worldMatrix,this.workMatrix,this.worldMatrix);
-        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,this.worldMatrix);
-        this.wheelModel.render(gl,shader);
-
-        pos = vec3.clone(this.wheelOffset['fr']);
-        mathUtils.rotateMat4(this.worldMatrix,rot);
-        mat4.fromTranslation(this.workMatrix,pos);
-        mat4.multiply(this.worldMatrix,this.workMatrix,this.worldMatrix);
-        mathUtils.rotateCurrMat4(this.worldMatrix,this.rotation);
-        mat4.fromTranslation(this.workMatrix,position);
-        mat4.multiply(this.worldMatrix,this.workMatrix,this.worldMatrix);
-        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,this.worldMatrix);
-        this.wheelModel.render(gl,shader);
-
-        pos = vec3.clone(this.wheelOffset['rl']);
-        mat4.identity(this.worldMatrix);
-        mat4.fromTranslation(this.workMatrix,pos);
-        mat4.multiply(this.worldMatrix,this.workMatrix,this.worldMatrix);
-        mathUtils.rotateCurrMat4(this.worldMatrix,this.rotation);
-        mat4.fromTranslation(this.workMatrix,position);
-        mat4.multiply(this.worldMatrix,this.workMatrix,this.worldMatrix);
-        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,this.worldMatrix);
-        this.wheelModel.render(gl,shader);
-
-        pos = vec3.clone(this.wheelOffset['rr']);
-        mat4.identity(this.worldMatrix);
-        mat4.fromTranslation(this.workMatrix,pos);
-        mat4.multiply(this.worldMatrix,this.workMatrix,this.worldMatrix);
-        mathUtils.rotateCurrMat4(this.worldMatrix,this.rotation);
-        mat4.fromTranslation(this.workMatrix,position);
-        mat4.multiply(this.worldMatrix,this.workMatrix,this.worldMatrix);
-        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,this.worldMatrix);
-        this.wheelModel.render(gl,shader);
+        this.renderWheel(gl,shader,this.wheelOffset['fr'],[this.wheelXAngle,-angle,0]);
+        this.renderWheel(gl,shader,this.wheelOffset['fl'],[this.wheelXAngle,-angle+Math.PI,0]);
+        this.renderWheel(gl,shader,this.wheelOffset['rr'],[this.wheelXAngle,0,0]);
+        this.renderWheel(gl,shader,this.wheelOffset['rl'],[this.wheelXAngle,Math.PI,0]);
     };
 
     this.update = function(deltaTime){
-        /*console.log(this.wheelRotateRight);
-        console.log(deltaTime);
-        console.log(this.wheelRotationSpeed);*/
         if (this.wheelRotateRight===true){
             this.wheelAngle += deltaTime*this.wheelRotationSpeed;
             if (this.wheelAngle>this.maxAngle) this.wheelAngle = this.maxAngle;
@@ -105,16 +80,18 @@ app.objects.object = function(position,bodyModel,wheelModel){
         //this.rotation = [0,angle,0];
 
         var angle = this.wheelAngle/360  * 2 * Math.PI;
-        var rotSpeed = this.speed*Math.sin(angle)*0.02;
+        var rotSpeed = this.speed*Math.sin(angle)*0.02*deltaTime;
         this.rotation[1]-=rotSpeed*deltaTime;
-
 
         var forward = this.getForwardVector();
 
         mathUtils.rotateVec3(forward,[0,-angle,0]);
         //vec3.scale(forward,forward,0.1);
-        vec3.scale(forward,forward,this.speed * Math.cos(angle));
+        var momentarySpeed = this.speed * Math.cos(angle)*deltaTime;
+        vec3.scale(forward,forward,momentarySpeed);
         vec3.add(this.position,this.position,forward);
+
+        this.wheelXAngle += momentarySpeed/this.wheelRadius;
     };
 
     this.setSpeed = function(val){
