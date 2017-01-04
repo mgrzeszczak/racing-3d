@@ -15,6 +15,18 @@ var mathUtils = (function(){
         mat4.multiply(matrix,workMatrix,matrix);
     }
 
+    function rotateCurrMat4(matrix,rotation){
+
+        mat4.fromXRotation(workMatrix,rotation[0]);
+        mat4.multiply(matrix,workMatrix,matrix);
+
+        mat4.fromYRotation(workMatrix,rotation[1]);
+        mat4.multiply(matrix,workMatrix,matrix);
+
+        mat4.fromZRotation(workMatrix,rotation[2]);
+        mat4.multiply(matrix,workMatrix,matrix);
+    }
+
     function rotateVec3(vector,rotation){
         mat4.fromXRotation(workMatrix,rotation[0]);
         vec3.transformMat4(vector,vector,workMatrix);
@@ -28,6 +40,7 @@ var mathUtils = (function(){
 
     return {
         rotateMat4 : rotateMat4,
+        rotateCurrMat4 : rotateCurrMat4,
         rotateVec3 : rotateVec3
     }
 

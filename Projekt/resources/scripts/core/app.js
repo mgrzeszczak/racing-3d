@@ -20,12 +20,15 @@ var app = (function(){
 
     function initObjects(){
         terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain'),1,1);
-        var model = app.modelLoader.loadModel('resources/models/formula.json',gl,shaderProgram);
-        car = new app.objects.object([0,0,0],model);
-        camera = new app.objects.camera([0,50,-50],[0,0,0]);
-        //camera.setTarget(car);
-        camera.followTarget(car);
-        light = new app.objects.light([0,10,0],[1.0,1.0,1.0],[0.1,0.1,0.1]);
+        var model = app.modelLoader.loadModel('resources/models/f1.json',gl,shaderProgram);
+        console.log(model);
+        var wheel = app.modelLoader.loadModel('resources/models/wheel.json',gl,shaderProgram);
+
+        car = new app.objects.object([0,0,0],model,wheel);
+        camera = new app.objects.camera([0,10,-10],[0,0,0]);
+        camera.setTarget(car);
+        //camera.followTarget(car);
+        light = new app.objects.light([0,1000,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
         world = new app.objects.world(light,[],camera,mat4.create());
     }
 
@@ -56,7 +59,7 @@ var app = (function(){
         return function(currTime){
             var deltaTime = currTime - prevTime;
             prevTime = currTime;
-            update();
+            update(deltaTime);
             performanceMonitor.begin();
             render();
             performanceMonitor.end();
@@ -91,7 +94,6 @@ var app = (function(){
 
         gl.useProgram(shaderProgram);
         updateUniforms();
-        car.update();
         car.render(gl,shaderProgram);
     }
 
@@ -130,9 +132,38 @@ var app = (function(){
     }
 
     function onKeyDown(event){
-        console.log(event);
         switch (event.key){
             case ' ':
+                break;
+            case 'w':
+                car.setSpeed(0.15);
+                break;
+            case 's':
+                car.setSpeed(-0.15);
+                break;
+            case 'a':
+                car.wheelRotateLeft = true;
+                break;
+            case 'd':
+                car.wheelRotateRight = true;
+                break;
+        }
+    }
+    function onKeyUp(event){
+        switch (event.key){
+            case ' ':
+                break;
+            case 'w':
+                car.setSpeed(0.0);
+                break;
+            case 's':
+                car.setSpeed(0.0);
+                break;
+            case 'a':
+                car.wheelRotateLeft = false;
+                break;
+            case 'd':
+                car.wheelRotateRight = false;
                 break;
         }
     }
@@ -140,6 +171,7 @@ var app = (function(){
     function registerCallbacks(){
         window.addEventListener('resize', onResize, false);
         document.addEventListener('keydown',onKeyDown,true);
+        document.addEventListener('keyup',onKeyUp,true);
     }
 
     return {
