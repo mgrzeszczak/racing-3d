@@ -31,7 +31,7 @@ void main()
    float specular = 0.0;
 
    if(lambertian > 0.0) {
-     vec3 viewDir = normalize(camPos-worldPosition);
+     vec3 viewDir = normalize(-worldPosition);
      vec3 reflectDir = reflect(-vecToLight, normal);
      float specAngle = max(dot(reflectDir, viewDir), 0.0);
      // note that the exponent is different here
@@ -39,7 +39,9 @@ void main()
    }
 
    vec3 textureColor = texture2D(sampler, fragTexCoord).xyz;
-   vec3 colorLinear = ambient + lambertian * (lightColor.xyz*textureColor.xyz) + specular * lightColor;
+   vec3 colorLinear = ambient + lambertian * (lightColor.xyz*textureColor.xyz) + specular *lightColor;
+   //vec3 colorLinear = ambient + 1.0 * (lightColor.xyz*textureColor.xyz) + 0.0 * lightColor;
+
    // apply gamma correction (assume ambientColor, diffuseColor and specColor
    // have been linearized, i.e. have no gamma correction in them)
    //vec3 colorGammaCorrected = pow(colorLinear, vec3(1.0/gamma));
