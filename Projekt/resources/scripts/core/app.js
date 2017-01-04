@@ -21,9 +21,9 @@ var app = (function(){
     function initObjects(){
         terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain'),1,1);
         var model = app.modelLoader.loadModel('resources/models/f1.json',gl,'formula-body');
-        console.log(model);
-        var wheel = app.modelLoader.loadModel('resources/models/wheel.json',gl,'formula-wheel');
 
+        var wheel = app.modelLoader.loadModel('resources/models/wheel.json',gl,'formula-wheel');
+        console.log(wheel.model);
 
         model.model.wheeloffset.fl[2]-=0.4;
         model.model.wheeloffset.fr[2]-=0.4;
@@ -34,7 +34,7 @@ var app = (function(){
         camera = new app.objects.camera([0,5,-5],[0,0,0]);
         camera.setTarget(car);
         //camera.followTarget(car);
-        light = new app.objects.light([0,1000,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
+        light = new app.objects.light([0,10,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
         world = new app.objects.world(light,[],camera,mat4.create());
     }
 
@@ -82,8 +82,6 @@ var app = (function(){
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-
-
         gl.useProgram(app.shaderLoader.getTerrainShader());
         var terrainShader = app.shaderLoader.getTerrainShader();
         var viewMatrixUniformLocation = gl.getUniformLocation(terrainShader,app.names.SHADER_VIEW_MATRIX);
@@ -94,6 +92,7 @@ var app = (function(){
         gl.uniformMatrix4fv(viewMatrixUniformLocation,false,camera.getViewMatrix());
         gl.uniformMatrix4fv(projectionMatrixUniformLocation,false,world.projectionMatrix);
         terrain.render(gl,terrainShader);
+        //terrain.render(gl,shaderProgram);
 
 
 

@@ -9,23 +9,16 @@ app.objects.object = function(position,bodyModel,wheelModel){
     this.workMatrix = mat4.create();
     this.forwardVector = vec3.fromValues(0,0,1);
 
-
     // NAIVE MOVEMENT
     this.wheelRotationSpeed = 0.5;
     this.speed = 0.0;
     this.wheelAngle = 0.0;
     this.maxAngle = 30;
 
-
     this.wheelRotateLeft = false;
     this.wheelRotateRight = false;
     this.wheelXAngle = 0.0;
     this.wheelRadius = 2*this.wheelOffset['fl'][2];
-
-    //this.forces = [];
-    //this.netForce = vec3.fromValues(0,0,0);
-    //this.acceleration = vec3.fromValues(0,0,0);
-    //this.velocity = vec3.fromValues(0,0,0);
 
     this.renderWheel = function(gl,shader,offset,yRotation){
         var worldMatrixUniformLocation = gl.getUniformLocation(shader,app.names.SHADER_WORLD_MATRIX);
@@ -50,8 +43,6 @@ app.objects.object = function(position,bodyModel,wheelModel){
         gl.uniformMatrix4fv(worldMatrixUniformLocation,false,this.worldMatrix);
         this.model.render(gl,shader);
 
-
-
         var angle = this.wheelAngle/360  * 2 * Math.PI;
 
         this.renderWheel(gl,shader,this.wheelOffset['fr'],[this.wheelXAngle,-angle,0]);
@@ -74,10 +65,6 @@ app.objects.object = function(position,bodyModel,wheelModel){
             if (this.wheelAngle>0) this.wheelAngle = this.wheelAngle>deltaAngle? this.wheelAngle-deltaAngle : 0;
             else if (this.wheelAngle<0) this.wheelAngle = this.wheelAngle<-deltaAngle? this.wheelAngle+deltaAngle : 0;
         }
-        //console.log(this.wheelAngle);
-
-        //var angle = performance.now()/1000 / 6*2*Math.PI;
-        //this.rotation = [0,angle,0];
 
         var angle = this.wheelAngle/360  * 2 * Math.PI;
         var rotSpeed = this.speed*Math.sin(angle)*0.02*deltaTime;
