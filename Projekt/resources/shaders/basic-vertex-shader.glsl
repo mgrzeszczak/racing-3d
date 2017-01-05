@@ -8,7 +8,6 @@ attribute vec2 texture;
 varying vec2 fragTexCoord;
 
 varying vec3 vecToLight;
-varying vec3 normal;
 varying vec3 fragColor;
 varying vec3 outNormal;
 varying vec3 worldPosition;
@@ -29,10 +28,9 @@ const float shininess = 30.0;
 void main()
 {
   gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(position,1.0);
-
   fragColor = lightColor;
-  worldPosition = (worldMatrix * vec4(position,1.0)).xyz;
+  worldPosition = (mat3(worldMatrix) * position);
+  outNormal = normalize(mat3(worldMatrix)*inNormal);
   vecToLight = normalize(lightPos-worldPosition);
-  outNormal = inNormal;
   fragTexCoord = texture;
 }

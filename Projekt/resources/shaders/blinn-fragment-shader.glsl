@@ -37,7 +37,8 @@ void main()
 
    }
    vec3 textureColor = texture2D(sampler, fragTexCoord).xyz;
-   vec3 colorLinear = ambient + lambertian * (lightColor.xyz*textureColor.xyz) + specular * lightColor;
+   vec3 colorLinear = ambient + lambertian * (lightColor) + specular * lightColor;
+   colorLinear = textureColor.xyz*lightColor.xyz;
    // apply gamma correction (assume ambientColor, diffuseColor and specColor
    // have been linearized, i.e. have no gamma correction in them)
    //vec3 colorGammaCorrected = pow(colorLinear, vec3(1.0/gamma));

@@ -31,7 +31,7 @@ var app = (function(){
         model.model.wheeloffset.rr[2]-=0.4;
 
         car = new app.objects.object([0,0,0],model,wheel);
-        camera = new app.objects.camera([0,5,-5],[0,0,0]);
+        camera = new app.objects.camera([0,10,-10],[0,0,0]);
         camera.setTarget(car);
         //camera.followTarget(car);
         light = new app.objects.light([0,5,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
@@ -111,9 +111,16 @@ var app = (function(){
         var projectionMatrixUniformLocation = gl.getUniformLocation(shaderProgram,app.names.SHADER_PROJECTION_MATRIX);
         var cameraPositionUniformLocation = gl.getUniformLocation(shaderProgram,app.names.SHADER_CAMERA_POSITION);
 
+        var viewDirectionPositionUniformLocation = gl.getUniformLocation(shaderProgram,app.names.SHADER_UNIFORM_VIEW_DIRECTION);
+
         gl.uniform3fv(ambientUniformLocation,light.ambient);
         gl.uniform3fv(lightColorUniformLocation,light.color);
         gl.uniform3fv(lightPosUniformLocation,light.position);
+
+        var viewDir = vec3.clone(camera.lookAt);
+        vec3.subtract(viewDir,viewDir,camera.position);
+        vec3.normalize(viewDir,viewDir);
+        gl.uniform3fv(viewDirectionPositionUniformLocation,viewDir);
 
         gl.uniform3fv(cameraPositionUniformLocation,camera.position);
 
