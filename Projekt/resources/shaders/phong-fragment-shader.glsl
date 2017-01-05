@@ -15,24 +15,25 @@ uniform mat4 projectionMatrix;
 
 uniform vec3 camPos;
 
-uniform bool hasTexture;
-
 const float gamma = 2.2;
 const float shininess = 80.0;
+
+uniform float material_kd;
+uniform float material_ks;
 
 varying vec2 fragTexCoord;
 uniform sampler2D sampler;
 
 void main()
 {
-   float diffuse = max(dot(vecToLight,outNormal), 0.0);
+   float diffuse = material_kd*max(dot(vecToLight,outNormal), 0.0);
    float specular = 0.0;
 
    if(diffuse > 0.0) {
      vec3 viewDir = normalize(camPos-worldPosition);
      vec3 reflectDir = -normalize(reflect(vecToLight, outNormal));
      float specAngle = max(dot(reflectDir, viewDir), 0.0);
-     specular = pow(specAngle, shininess/4.0);
+     specular = material_ks*pow(specAngle, shininess/4.0);
    }
    vec3 textureColor = texture2D(sampler, fragTexCoord).xyz;
    vec3 color = ambient + diffuse*(lightColor.xyz*textureColor.xyz)+specular*lightColor.xyz;

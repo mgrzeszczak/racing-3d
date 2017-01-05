@@ -1,7 +1,6 @@
 precision mediump float;
             
 attribute vec3 position;
-//attribute vec3 texture;
 attribute vec3 inNormal;
 attribute vec2 texture;
 
@@ -20,6 +19,8 @@ uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 
 uniform vec3 camPos;
+uniform float material_kd;
+uniform float material_ks;
 
 const float gamma = 2.2;
 const float shininess = 30.0;
@@ -29,28 +30,22 @@ uniform sampler2D sampler;
 void main()
 {
   gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(position,1.0);
-
-  worldPosition = (worldMatrix * vec4(position,1.0)).xyz;
+  fragColor = lightColor;
+  worldPosition = (mat3(worldMatrix) * position);
+  outNormal = normalize(mat3(worldMatrix)*inNormal);
   vecToLight = normalize(lightPos-worldPosition);
-  outNormal = inNormal;
 
-  vec3 normal = normalize((worldMatrix*vec4(outNormal,0.0)).xyz);
+  float diffuse = max(dot(vecToLight,outNormal), 0.0);
+     float specular = 0.0;
 
-  float lambertian = max(dot(vecToLight,normal), 0.0);
-  float specular = 0.0;
+     if(diffuse > 0.0) {
+        vec3 viewDir = normalize(camPos-worldPosition);
+        vec3 halfDir = normalize(vecToLight + viewDir);
+        float specAngle = max(dot(halfDir, outNormal), 0.0);
+        specular = material_ks*pow(specAngle, shininess);
+     }
+     vec3 textureColor = texture2D(sampler, texture).xyz;
+     vec3 color = ambient + material_kd*diffuse*(lightColor.xyz*textureColor.xyz)+specular*lightColor.xyz;
 
-  if(lambertian > 0.0) {
-    vec3 viewDir = normalize(camPos-worldPosition);
-    vec3 halfDir = normalize(vecToLight + viewDir);
-    float specAngle = max(dot(halfDir, normal), 0.0);
-    specular = pow(specAngle, shininess);
-  }
-
-  vec3 textureColor = texture2D(sampler, texture).xyz;
-  vec3 colorLinear = ambient + lambertian * (lightColor.xyz*textureColor.xyz) + specular * lightColor;
-  // apply gamma correction (assume ambientColor, diffuseColor and specColor
-  // have been linearized, i.e. have no gamma correction in them)
-  //vec3 colorGammaCorrected = pow(colorLinear, vec3(1.0/gamma));
-  // use the gamma corrected color in the fragment
-  fragColor = colorLinear;
+     fragColor = color;
 }

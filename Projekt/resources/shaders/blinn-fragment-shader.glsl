@@ -16,32 +16,27 @@ uniform mat4 projectionMatrix;
 uniform vec3 camPos;
 
 const float gamma = 2.2;
-const float shininess = 80.0;
+const float shininess = 30.0;
+
+uniform float material_kd;
+uniform float material_ks;
 
 varying vec2 fragTexCoord;
 uniform sampler2D sampler;
 
 void main()
 {
-   vec3 normal = normalize((worldMatrix*vec4(outNormal,0.0)).xyz);
-
-   float lambertian = max(dot(vecToLight,normal), 0.0);
+   float diffuse = max(dot(vecToLight,outNormal), 0.0);
    float specular = 0.0;
 
-   if(lambertian > 0.0) {
-     vec3 viewDir = normalize(camPos-worldPosition);
-     // this is blinn phong
-     vec3 halfDir = normalize(vecToLight + viewDir);
-     float specAngle = max(dot(halfDir, normal), 0.0);
-     specular = pow(specAngle, shininess);
-
+   if(diffuse > 0.0) {
+      vec3 viewDir = normalize(camPos-worldPosition);
+      vec3 halfDir = normalize(vecToLight + viewDir);
+      float specAngle = max(dot(halfDir, outNormal), 0.0);
+      specular = material_ks*pow(specAngle, shininess);
    }
    vec3 textureColor = texture2D(sampler, fragTexCoord).xyz;
-   vec3 colorLinear = ambient + lambertian * (lightColor) + specular * lightColor;
-   colorLinear = textureColor.xyz*lightColor.xyz;
-   // apply gamma correction (assume ambientColor, diffuseColor and specColor
-   // have been linearized, i.e. have no gamma correction in them)
-   //vec3 colorGammaCorrected = pow(colorLinear, vec3(1.0/gamma));
-   // use the gamma corrected color in the fragment
-   gl_FragColor = vec4(colorLinear,1.0);
+   vec3 color = ambient + material_kd*diffuse*(lightColor.xyz*textureColor.xyz)+specular*lightColor.xyz;
+
+   gl_FragColor = vec4(color,1.0);
 }

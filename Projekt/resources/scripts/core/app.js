@@ -34,13 +34,13 @@ var app = (function(){
         camera = new app.objects.camera([0,10,-10],[0,0,0]);
         camera.setTarget(car);
         //camera.followTarget(car);
-        light = new app.objects.light([0,5,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
+        light = new app.objects.light([0,20,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
         world = new app.objects.world(light,[],camera,mat4.create());
     }
 
     function initShaders(){
         app.shaderLoader.initShaders(gl);
-        shaderProgram = app.shaderLoader.getShaderProgram(app.shading.PHONG,app.lighting.PHONG);
+        shaderProgram = app.shaderLoader.getShaderProgram(app.shading.GOURAUD,app.lighting.BLINN);
         gl.useProgram(shaderProgram);
     }
 
@@ -99,8 +99,18 @@ var app = (function(){
 
         var worldMatrixUniformLocation = gl.getUniformLocation(shaderProgram,app.names.SHADER_WORLD_MATRIX);
         gl.uniformMatrix4fv(worldMatrixUniformLocation,false,mat4.create());
+        setMaterialUniforms(0.0,1.0);
         terrain.render(gl,shaderProgram);
+        setMaterialUniforms(1.0,1.0);
         car.render(gl,shaderProgram);
+    }
+
+    function setMaterialUniforms(material_ks,material_kd){
+        var materialKsUniformLocation = gl.getUniformLocation(shaderProgram,app.names.SHADER_UNIFORM_MATERIAL_KS);
+        var materialKdUniformLocation = gl.getUniformLocation(shaderProgram,app.names.SHADER_UNIFORM_MATERIAL_KD);
+
+        gl.uniform1f(materialKsUniformLocation,material_ks);
+        gl.uniform1f(materialKdUniformLocation,material_kd);
     }
 
     function updateUniforms(){
@@ -111,16 +121,9 @@ var app = (function(){
         var projectionMatrixUniformLocation = gl.getUniformLocation(shaderProgram,app.names.SHADER_PROJECTION_MATRIX);
         var cameraPositionUniformLocation = gl.getUniformLocation(shaderProgram,app.names.SHADER_CAMERA_POSITION);
 
-        var viewDirectionPositionUniformLocation = gl.getUniformLocation(shaderProgram,app.names.SHADER_UNIFORM_VIEW_DIRECTION);
-
         gl.uniform3fv(ambientUniformLocation,light.ambient);
         gl.uniform3fv(lightColorUniformLocation,light.color);
         gl.uniform3fv(lightPosUniformLocation,light.position);
-
-        var viewDir = vec3.clone(camera.lookAt);
-        vec3.subtract(viewDir,viewDir,camera.position);
-        vec3.normalize(viewDir,viewDir);
-        gl.uniform3fv(viewDirectionPositionUniformLocation,viewDir);
 
         gl.uniform3fv(cameraPositionUniformLocation,camera.position);
 
