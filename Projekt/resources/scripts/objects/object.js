@@ -9,9 +9,18 @@ app.objects.object = function(position,bodyModel,wheelModel){
     this.workMatrix = mat4.create();
     this.forwardVector = vec3.fromValues(0,0,1);
 
+
+    this.acceleration = 0.00005;
+    this.breakFactor = 2*this.acceleration;
+    this.rotationFactor = 0.010;
+
+    this.accelerate = false;
+    this.break = false;
+    this.maxSpeed = 0.03;
+    this.speed = 0.0;
+
     // NAIVE MOVEMENT
     this.wheelRotationSpeed = 0.5;
-    this.speed = 0.0;
     this.wheelAngle = 0.0;
     this.maxAngle = 30;
 
@@ -52,6 +61,16 @@ app.objects.object = function(position,bodyModel,wheelModel){
     };
 
     this.update = function(deltaTime){
+
+        if (this.accelerate === true){
+            this.speed += this.acceleration * deltaTime;
+            if (this.speed >  this.maxSpeed) this.speed = this.maxSpeed;
+        }
+        if  (this.break === true){
+            this.speed -= this.breakFactor*deltaTime;
+            if (this.speed < 0) this.speed = 0;
+        }
+
         if (this.wheelRotateRight===true){
             this.wheelAngle += deltaTime*this.wheelRotationSpeed;
             if (this.wheelAngle>this.maxAngle) this.wheelAngle = this.maxAngle;
@@ -67,7 +86,8 @@ app.objects.object = function(position,bodyModel,wheelModel){
         }
 
         var angle = this.wheelAngle/360  * 2 * Math.PI;
-        var rotSpeed = this.speed*Math.sin(angle)*0.02*deltaTime;
+        //var rotSpeed = this.speed*Math.sin(angle)*0.02*deltaTime;
+        var rotSpeed = this.speed*Math.sin(angle)*this.rotationFactor*deltaTime;
         this.rotation[1]-=rotSpeed*deltaTime;
 
         var forward = this.getForwardVector();

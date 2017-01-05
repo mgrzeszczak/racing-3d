@@ -32,15 +32,15 @@ var app = (function(){
 
         car = new app.objects.object([0,0,0],model,wheel);
         camera = new app.objects.camera([0,10,-10],[0,0,0]);
-        camera.setTarget(car);
-        //camera.followTarget(car);
+        //camera.setTarget(car);
+        camera.followTarget(car);
         light = new app.objects.light([0,20,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
         world = new app.objects.world(light,[],camera,mat4.create());
     }
 
     function initShaders(){
         app.shaderLoader.initShaders(gl);
-        shaderProgram = app.shaderLoader.getShaderProgram(app.shading.GOURAUD,app.lighting.BLINN);
+        shaderProgram = app.shaderLoader.getShaderProgram(app.shading.PHONG,app.lighting.PHONG);
         gl.useProgram(shaderProgram);
     }
 
@@ -81,18 +81,6 @@ var app = (function(){
     function render() {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-        /*gl.useProgram(app.shaderLoader.getTerrainShader());
-        var terrainShader = app.shaderLoader.getTerrainShader();
-        var viewMatrixUniformLocation = gl.getUniformLocation(terrainShader,app.names.SHADER_VIEW_MATRIX);
-        var projectionMatrixUniformLocation = gl.getUniformLocation(terrainShader,app.names.SHADER_PROJECTION_MATRIX);
-        var worldMatrixUniformLocation = gl.getUniformLocation(terrainShader,app.names.SHADER_WORLD_MATRIX);
-        mat4.perspective(world.projectionMatrix,glMatrix.toRadian(45),canvas.width/canvas.height,0.1,1000.0);
-        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,mat4.create());
-        gl.uniformMatrix4fv(viewMatrixUniformLocation,false,camera.getViewMatrix());
-        gl.uniformMatrix4fv(projectionMatrixUniformLocation,false,world.projectionMatrix);
-        terrain.render(gl,terrainShader);*/
-
 
         gl.useProgram(shaderProgram);
         updateUniforms();
@@ -152,10 +140,12 @@ var app = (function(){
             case ' ':
                 break;
             case 'w':
-                car.setSpeed(0.01);
+                car.accelerate = true;
+                //car.setSpeed(0.01);
                 break;
             case 's':
-                car.setSpeed(-0.01);
+                //car.setSpeed(-0.01);
+                car.break = true;
                 break;
             case 'a':
                 car.wheelRotateLeft = true;
@@ -170,10 +160,12 @@ var app = (function(){
             case ' ':
                 break;
             case 'w':
-                car.setSpeed(0.0);
+                //car.setSpeed(0.0);
+                car.accelerate = false;
                 break;
             case 's':
-                car.setSpeed(0.0);
+                car.break = false;
+                //car.setSpeed(0.0);
                 break;
             case 'a':
                 car.wheelRotateLeft = false;

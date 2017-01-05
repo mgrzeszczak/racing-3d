@@ -54,10 +54,10 @@ app.shaderLoader = (function(){
         shaderPrograms[app.shading.PHONG*3+app.lighting.PHONG] = createShaderProgram(gl,basicVertexShader,phongFragmentShader);
         shaderPrograms[app.shading.PHONG*3+app.lighting.BLINN] = createShaderProgram(gl,basicVertexShader,blinnFragmentShader);
 
-        var terrainVertexShader, terrainFragmentShader;
-        loadTextResource('resources/shaders/terrain/terrain-vertex-shader.glsl',function(text){terrainVertexShader=text;});
-        loadTextResource('resources/shaders/terrain/terrain-fragment-shader.glsl',function(text){terrainFragmentShader=text;});
-        shaderPrograms['terrain'] = createShaderProgram(gl,terrainVertexShader,terrainFragmentShader);
+        //var terrainVertexShader, terrainFragmentShader;
+        //loadTextResource('resources/shaders/terrain/terrain-vertex-shader.glsl',function(text){terrainVertexShader=text;});
+        //loadTextResource('resources/shaders/terrain/terrain-fragment-shader.glsl',function(text){terrainFragmentShader=text;});
+        //shaderPrograms['terrain'] = createShaderProgram(gl,terrainVertexShader,terrainFragmentShader);
     }
 
     function getTerrainShader(){
