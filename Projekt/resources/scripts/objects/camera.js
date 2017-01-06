@@ -11,9 +11,10 @@ app.objects.camera = function(position,lookAt){
     };
 
     this.update = function(deltaTime){
-        if (this.followTarget != undefined){
-            this.position = this.followTarget.getPosition();
-            var forwardVector = this.followTarget.getForwardVector();
+
+        if (this.followedTarget != undefined){
+            this.position = this.followedTarget.getPosition();
+            var forwardVector = this.followedTarget.getForwardVector();
 
             var lookAt = vec3.clone(forwardVector);
             vec3.scale(lookAt,lookAt,10);
@@ -27,11 +28,11 @@ app.objects.camera = function(position,lookAt){
     };
 
     this.setTarget = function(target){
-        this.followTarget = undefined;
+        this.followedTarget = undefined;
         this.lookAt = target.position===undefined? target : target.position;
     };
 
     this.followTarget = function(target){
-        this.followTarget = target;
+        this.followedTarget = target;
     };
 };

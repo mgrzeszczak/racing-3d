@@ -6,7 +6,6 @@ attribute vec2 texture;
 
 varying vec3 vecToLight;
 varying vec3 normal;
-varying vec3 fragColor;
 varying vec3 outNormal;
 varying vec3 worldPosition;
 
@@ -24,15 +23,17 @@ uniform float material_ks;
 
 const float gamma = 2.2;
 const float shininess = 30.0;
+const float lightAttenuation = 0.0001;
 
-uniform sampler2D sampler;
+varying vec3 outSpecular;
+varying vec3 outDiffuse;
+varying vec2 textureCoords;
 
 void main()
 {
   gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(position,1.0);
-  fragColor = lightColor;
-  worldPosition = (mat3(worldMatrix) * position);
-  outNormal = normalize(mat3(worldMatrix)*inNormal);
+  worldPosition = vec3(worldMatrix * vec4(position,1.0));
+  outNormal = normalize(vec3(worldMatrix*vec4(inNormal,0.0)));
   vecToLight = normalize(lightPos-worldPosition);
 
   float diffuse = max(dot(vecToLight,outNormal), 0.0);
@@ -42,10 +43,15 @@ void main()
         vec3 viewDir = normalize(camPos-worldPosition);
         vec3 halfDir = normalize(vecToLight + viewDir);
         float specAngle = max(dot(halfDir, outNormal), 0.0);
-        specular = material_ks*pow(specAngle, shininess);
+        specular = pow(specAngle, shininess);
      }
-     vec3 textureColor = texture2D(sampler, texture).xyz;
-     vec3 color = ambient + material_kd*diffuse*(lightColor.xyz*textureColor.xyz)+specular*lightColor.xyz;
+     //vec3 textureColor = texture2D(sampler, texture).xyz;
+     //vec3 color = ambient + material_kd*diffuse*(lightColor.xyz*textureColor.xyz)+specular*lightColor.xyz;
+    float distanceToLight = length(lightPos-worldPosition);
+    float attenuation = 1.0/(1.0 + lightAttenuation * pow(distanceToLight, 2.0));
 
-     fragColor = color;
+    textureCoords = texture;
+    outDiffuse = attenuation*material_kd*diffuse*(lightColor);
+    outSpecular = attenuation*material_ks*specular*lightColor.xyz;
+
 }

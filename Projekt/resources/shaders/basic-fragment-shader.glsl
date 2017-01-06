@@ -1,13 +1,14 @@
 precision mediump float;
-        
-varying vec3 fragColor;
 
-varying vec3 outNormal;
-varying vec3 vecToLight;
 uniform vec3 ambient;
-uniform vec3 lightColor;
+varying vec3 outSpecular;
+varying vec3 outDiffuse;
+varying vec2 textureCoords;
+uniform sampler2D sampler;
 
 void main()
 {
-  gl_FragColor = vec4(fragColor,1.0);
+    vec3 textureColor = texture2D(sampler, textureCoords).xyz;
+    vec3 color = ambient + outDiffuse.xyz*textureColor.xyz+ outSpecular;
+    gl_FragColor = vec4(color,1.0);
 }

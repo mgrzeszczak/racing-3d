@@ -26,10 +26,12 @@ const float shininess = 30.0;
 
 void main()
 {
-  gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(position,1.0);
   fragColor = lightColor;
-  worldPosition = (mat3(worldMatrix) * position);
-  outNormal = normalize(mat3(worldMatrix)*inNormal);
+  worldPosition = vec3(worldMatrix * vec4(position,1.0));
+  outNormal = normalize(vec3(worldMatrix*vec4(inNormal,0.0)));
+  //worldPosition = (mat3(worldMatrix) * position);
+  //outNormal = normalize(mat3(worldMatrix)*inNormal);
   vecToLight = normalize(lightPos-worldPosition);
   fragTexCoord = texture;
+  gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(position,1.0);
 }

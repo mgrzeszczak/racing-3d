@@ -8,6 +8,11 @@ var app = (function(){
     var car, camera, light, world;
     var terrain;
 
+    var cameras = [];
+
+    var lighting;
+    var shading;
+
     function initialize(){
         initGL();
         initPerformanceMonitor();
@@ -19,28 +24,28 @@ var app = (function(){
     }
 
     function initObjects(){
-        terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain'),3,3,'terrain2');
+        terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain2'),3,3,20,'white');
         var model = app.modelLoader.loadModel('resources/models/f1.json',gl,'formula-body');
-
         var wheel = app.modelLoader.loadModel('resources/models/wheel.json',gl,'formula-wheel');
-        console.log(wheel.model);
 
-        model.model.wheeloffset.fl[2]-=0.4;
-        model.model.wheeloffset.fr[2]-=0.4;
-        model.model.wheeloffset.rl[2]-=0.4;
-        model.model.wheeloffset.rr[2]-=0.4;
+        car = new app.objects.object([0,20,0],model,wheel);
 
-        car = new app.objects.object([0,0,0],model,wheel);
-        camera = new app.objects.camera([0,10,-10],[0,0,0]);
-        //camera.setTarget(car);
-        camera.followTarget(car);
-        light = new app.objects.light([0,20,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
+        cameras[0] = new app.objects.camera([0,30,-30],[0,0,0]);
+        cameras[0].setTarget(car);
+        cameras[1] = new app.objects.camera([0,30,-30],[0,0,0]);
+        cameras[1].followTarget(car);
+        cameras[2] = new app.objects.camera([0,50,-50],[0,0,0]);
+        camera = cameras[0];
+
+        light = new app.objects.light([0,50,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
         world = new app.objects.world(light,[],camera,mat4.create());
     }
 
     function initShaders(){
         app.shaderLoader.initShaders(gl);
-        shaderProgram = app.shaderLoader.getShaderProgram(app.shading.PHONG,app.lighting.PHONG);
+        lighting = app.lighting.PHONG;
+        shading = app.shading.PHONG;
+        shaderProgram = app.shaderLoader.getShaderProgram(shading,lighting);
         gl.useProgram(shaderProgram);
     }
 
@@ -75,10 +80,14 @@ var app = (function(){
 
     function update(deltaTime){
         car.update(deltaTime);
-        camera.update(deltaTime);
+        cameras.forEach(function(camera){
+            camera.update(deltaTime);
+        });
     }
 
     function render() {
+        shaderProgram = app.shaderLoader.getShaderProgram(shading,lighting);
+
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -89,7 +98,9 @@ var app = (function(){
         gl.uniformMatrix4fv(worldMatrixUniformLocation,false,mat4.create());
         setMaterialUniforms(0.0,1.0);
         terrain.render(gl,shaderProgram);
+
         setMaterialUniforms(1.0,1.0);
+        updateUniforms();
         car.render(gl,shaderProgram);
     }
 
@@ -136,15 +147,39 @@ var app = (function(){
     }
 
     function onKeyDown(event){
+        console.log(event);
         switch (event.key){
-            case ' ':
+            case '1':
+                camera = cameras[0];
+                break;
+            case '2':
+                camera = cameras[1];
+                break;
+            case '3':
+                camera = cameras[2];
+                break;
+            case 'b':
+                lighting = app.lighting.BLINN;
+                break;
+            case 'p':
+                lighting = app.lighting.PHONG;
+                break;
+            case '8':
+                shading = app.shading.FLAT;
+                app.settings.FLAT_SHADING = true;
+                break;
+            case '9':
+                shading = app.shading.GOURAUD;
+                app.settings.FLAT_SHADING = false;
+                break;
+            case '0':
+                shading = app.shading.PHONG;
+                app.settings.FLAT_SHADING = false;
                 break;
             case 'w':
                 car.accelerate = true;
-                //car.setSpeed(0.01);
                 break;
             case 's':
-                //car.setSpeed(-0.01);
                 car.break = true;
                 break;
             case 'a':
@@ -154,18 +189,16 @@ var app = (function(){
                 car.wheelRotateRight = true;
                 break;
         }
+        return true;
     }
+
     function onKeyUp(event){
         switch (event.key){
-            case ' ':
-                break;
             case 'w':
-                //car.setSpeed(0.0);
                 car.accelerate = false;
                 break;
             case 's':
                 car.break = false;
-                //car.setSpeed(0.0);
                 break;
             case 'a':
                 car.wheelRotateLeft = false;
@@ -174,6 +207,7 @@ var app = (function(){
                 car.wheelRotateRight = false;
                 break;
         }
+        return true;
     }
 
     function registerCallbacks(){

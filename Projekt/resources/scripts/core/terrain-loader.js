@@ -1,7 +1,7 @@
 app.terrainLoader = (function(){
 
 
-    function generateTerrainFromImage(gl,image,scaleX,scaleY,textureId){
+    function generateTerrainFromImage(gl,image,scaleX,scaleY,scaleZ,textureId){
         var canvas = document.createElement('canvas');
         canvas.width = image.naturalWidth;
         canvas.height = image.naturalHeight;
@@ -21,26 +21,80 @@ app.terrainLoader = (function(){
         var h = canvas.height;
         var i,j;
 
+        /*
+        var map = [];
+        j = -1;
         for (i=0;i<data.length;i+=4){
-            var y = Math.floor((i/4)/w);
             var x = (i/4)%w;
+            if (x==0) j++;
+            if (map[j]===undefined) map[j]=[];
+            map[j][x] = vec3.fromValues(data[i]/255,data[i+1]/255,data[i+2]/255);
+        }
+        console.log(map);
 
-            var color = data[i]/255;
+        for (var x=0;x<w;x++){
+            for (var y=0;y<h;y++){
 
-            vertexData.push((x-center[0])*scaleX);
-            vertexData.push(0);
-            vertexData.push((y-center[1])*scaleY);
+                var color = map[y][x][0];
+                console.log(color);
+
+                vertexData.push((x-center[0])*scaleX);
+                vertexData.push(color*scaleZ);
+                vertexData.push((y-center[1])*scaleY);
+
+                var sx = map[y][x][0] - map[y][(x==0? x : x-1)][0];
+                if (x == 0 || x == w-1)
+                    sx *= 2;
+
+                var sy = map[y][x][0] - map[(y==0?y:y-1)][x][0];
+                if (y == 0 || y == h -1)
+                    sy *= 2;
+
+                var normal = vec3.fromValues(0,1,0);
+                vec3.normalize(normal,normal);
+
+                normalData.push(normal[0]);
+                normalData.push(normal[1]);
+                normalData.push(normal[2]);
+
+                textureData.push(x/canvas.width);
+                textureData.push(y/canvas.height);
+            }
+        }*/
+
+
+
+
+        for (i=0;i<data.length;i+=4) {
+            var y = Math.floor((i / 4) / w);
+            var x = (i / 4) % w;
+
+            var color = data[i] / 255;
+
+            vertexData.push((x - center[0]) * scaleX);
+            vertexData.push(color * scaleZ);
+            vertexData.push((y - center[1]) * scaleY);
 
             //vertexData.push(color);
             //vertexData.push(color);
             //vertexData.push(color);
+            var sx = data[4 * (x < w - 1 ? x + 1 : x) + 4 * y * w] - data[(x == 0 ? x : x - 1) * 4 + 4 * y * w];
+            if (x == 0 || x == w - 1)
+                sx *= 2;
 
-            normalData.push(0);
-            normalData.push(1);
-            normalData.push(0);
+            var sy = data[4 * x + 4 * w * (y < h - 1 ? y + 1 : y)] - data[4 * x + 4 * w * (y == 0 ? y : y - 1)];
+            if (y == 0 || y == h - 1)
+                sy *= 2;
 
-            textureData.push(x/canvas.width);
-            textureData.push(y/canvas.height);
+            var normal = vec3.fromValues(-sx / 255, 1, -sy / 255);
+            vec3.normalize(normal, normal);
+
+            normalData.push(normal[0]);
+            normalData.push(normal[1]);
+            normalData.push(normal[2]);
+
+            textureData.push(x / canvas.width);
+            textureData.push(y / canvas.height);
         }
 
         console.log(textureData);
@@ -139,8 +193,6 @@ app.terrainLoader = (function(){
                 gl.enableVertexAttribArray(normalAttributeLocation);
                 gl.enableVertexAttribArray(textureCoordsAttributeLocation);
 
-                gl.clearColor(0,0,0, 1.0);
-                gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
                 gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 
                 gl.bindTexture(gl.TEXTURE_2D, null);

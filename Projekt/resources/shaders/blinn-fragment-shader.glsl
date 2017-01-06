@@ -17,6 +17,7 @@ uniform vec3 camPos;
 
 const float gamma = 2.2;
 const float shininess = 30.0;
+const float lightAttenuation = 0.0001;
 
 uniform float material_kd;
 uniform float material_ks;
@@ -33,10 +34,14 @@ void main()
       vec3 viewDir = normalize(camPos-worldPosition);
       vec3 halfDir = normalize(vecToLight + viewDir);
       float specAngle = max(dot(halfDir, outNormal), 0.0);
-      specular = material_ks*pow(specAngle, shininess);
+      specular = pow(specAngle, shininess);
    }
+
+   float distanceToLight = length(lightPos-worldPosition);
+   float attenuation = 1.0/(1.0 + lightAttenuation * pow(distanceToLight, 2.0));
+
    vec3 textureColor = texture2D(sampler, fragTexCoord).xyz;
-   vec3 color = ambient + material_kd*diffuse*(lightColor.xyz*textureColor.xyz)+specular*lightColor.xyz;
+   vec3 color = ambient + attenuation*material_kd*diffuse*(lightColor.xyz*textureColor.xyz)+attenuation*material_ks*specular*lightColor.xyz;
 
    gl_FragColor = vec4(color,1.0);
 }
