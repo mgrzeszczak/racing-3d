@@ -24,11 +24,11 @@ var app = (function(){
     }
 
     function initObjects(){
-        terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain2'),3,3,20,'white');
+        terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain2'),3,3,30,'white');
         var model = app.modelLoader.loadModel('resources/models/f1.json',gl,'formula-body');
         var wheel = app.modelLoader.loadModel('resources/models/wheel.json',gl,'formula-wheel');
 
-        car = new app.objects.object([0,20,0],model,wheel);
+        car = new app.objects.object([0,20,0],model,wheel,terrain);
 
         cameras[0] = new app.objects.camera([0,30,-30],[0,0,0]);
         cameras[0].setTarget(car);
@@ -37,7 +37,7 @@ var app = (function(){
         cameras[2] = new app.objects.camera([0,50,-50],[0,0,0]);
         camera = cameras[0];
 
-        light = new app.objects.light([0,50,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
+        light = new app.objects.light([0,100,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
         world = new app.objects.world(light,[],camera,mat4.create());
     }
 
@@ -99,7 +99,7 @@ var app = (function(){
         setMaterialUniforms(0.0,1.0);
         terrain.render(gl,shaderProgram);
 
-        setMaterialUniforms(1.0,1.0);
+        setMaterialUniforms(1.5,1.0);
         updateUniforms();
         car.render(gl,shaderProgram);
     }
@@ -147,7 +147,7 @@ var app = (function(){
     }
 
     function onKeyDown(event){
-        console.log(event);
+        //console.log(event);
         switch (event.key){
             case '1':
                 camera = cameras[0];

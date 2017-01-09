@@ -21,49 +21,7 @@ app.terrainLoader = (function(){
         var h = canvas.height;
         var i,j;
 
-        /*
-        var map = [];
-        j = -1;
-        for (i=0;i<data.length;i+=4){
-            var x = (i/4)%w;
-            if (x==0) j++;
-            if (map[j]===undefined) map[j]=[];
-            map[j][x] = vec3.fromValues(data[i]/255,data[i+1]/255,data[i+2]/255);
-        }
-        console.log(map);
-
-        for (var x=0;x<w;x++){
-            for (var y=0;y<h;y++){
-
-                var color = map[y][x][0];
-                console.log(color);
-
-                vertexData.push((x-center[0])*scaleX);
-                vertexData.push(color*scaleZ);
-                vertexData.push((y-center[1])*scaleY);
-
-                var sx = map[y][x][0] - map[y][(x==0? x : x-1)][0];
-                if (x == 0 || x == w-1)
-                    sx *= 2;
-
-                var sy = map[y][x][0] - map[(y==0?y:y-1)][x][0];
-                if (y == 0 || y == h -1)
-                    sy *= 2;
-
-                var normal = vec3.fromValues(0,1,0);
-                vec3.normalize(normal,normal);
-
-                normalData.push(normal[0]);
-                normalData.push(normal[1]);
-                normalData.push(normal[2]);
-
-                textureData.push(x/canvas.width);
-                textureData.push(y/canvas.height);
-            }
-        }*/
-
-
-
+        var terrainData = {};
 
         for (i=0;i<data.length;i+=4) {
             var y = Math.floor((i / 4) / w);
@@ -71,9 +29,12 @@ app.terrainLoader = (function(){
 
             var color = data[i] / 255;
 
+            var position = vec3.fromValues((x - center[0]) * scaleX,color*scaleZ,(y - center[1]) * scaleY);
             vertexData.push((x - center[0]) * scaleX);
             vertexData.push(color * scaleZ);
             vertexData.push((y - center[1]) * scaleY);
+
+            terrainData[x*h+y] = position;
 
             //vertexData.push(color);
             //vertexData.push(color);
@@ -99,7 +60,6 @@ app.terrainLoader = (function(){
 
         console.log(textureData);
         console.log(normalData);
-
 
 
         for (i=0;i<w-1;i++){
@@ -147,61 +107,125 @@ app.terrainLoader = (function(){
         );
         gl.bindTexture(gl.TEXTURE_2D, null);
 
-        return {
-            render : function(gl, shader){
 
-                gl.bindTexture(gl.TEXTURE_2D, texture);
-                gl.activeTexture(gl.TEXTURE0);
+        function render(gl,shader){
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.activeTexture(gl.TEXTURE0);
 
-                var positionAttributeLocation = gl.getAttribLocation(shader, app.names.SHADER_POSITION);
-                var normalAttributeLocation = gl.getAttribLocation(shader, app.names.SHADER_NORMAL);
-                var textureCoordsAttributeLocation = gl.getAttribLocation(shader, app.names.SHADER_TEXTURE_COORDS);
+            var positionAttributeLocation = gl.getAttribLocation(shader, app.names.SHADER_POSITION);
+            var normalAttributeLocation = gl.getAttribLocation(shader, app.names.SHADER_NORMAL);
+            var textureCoordsAttributeLocation = gl.getAttribLocation(shader, app.names.SHADER_TEXTURE_COORDS);
 
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-                gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 
-                gl.vertexAttribPointer(
-                    positionAttributeLocation, // attrib location
-                    3, // number of elements per attrib
-                    gl.FLOAT, // type
-                    false, // normalized ?
-                    3 * Float32Array.BYTES_PER_ELEMENT, // size of individual vertex
-                    0  // offset from the beginning
-                );
-                gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-                gl.vertexAttribPointer(
-                    normalAttributeLocation, // attrib location
-                    3, // number of elements per attrib
-                    gl.FLOAT, // type
-                    false, // normalized ?
-                    3 * Float32Array.BYTES_PER_ELEMENT, // size of individual vertex
-                    0  // offset from the beginning
-                );
+            gl.vertexAttribPointer(
+                positionAttributeLocation, // attrib location
+                3, // number of elements per attrib
+                gl.FLOAT, // type
+                false, // normalized ?
+                3 * Float32Array.BYTES_PER_ELEMENT, // size of individual vertex
+                0  // offset from the beginning
+            );
+            gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+            gl.vertexAttribPointer(
+                normalAttributeLocation, // attrib location
+                3, // number of elements per attrib
+                gl.FLOAT, // type
+                false, // normalized ?
+                3 * Float32Array.BYTES_PER_ELEMENT, // size of individual vertex
+                0  // offset from the beginning
+            );
 
 
-                gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
-                gl.vertexAttribPointer(
-                    textureCoordsAttributeLocation, // attrib location
-                    2, // number of elements per attrib
-                    gl.FLOAT, // type
-                    false, // normalized ?
-                    2 * Float32Array.BYTES_PER_ELEMENT, // size of individual vertex
-                    0  // offset from the beginning
-                );
-                // enable attribute
-                gl.enableVertexAttribArray(positionAttributeLocation);
-                gl.enableVertexAttribArray(normalAttributeLocation);
-                gl.enableVertexAttribArray(textureCoordsAttributeLocation);
+            gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
+            gl.vertexAttribPointer(
+                textureCoordsAttributeLocation, // attrib location
+                2, // number of elements per attrib
+                gl.FLOAT, // type
+                false, // normalized ?
+                2 * Float32Array.BYTES_PER_ELEMENT, // size of individual vertex
+                0  // offset from the beginning
+            );
+            // enable attribute
+            gl.enableVertexAttribArray(positionAttributeLocation);
+            gl.enableVertexAttribArray(normalAttributeLocation);
+            gl.enableVertexAttribArray(textureCoordsAttributeLocation);
 
-                gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
+            gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 
-                gl.bindTexture(gl.TEXTURE_2D, null);
+            gl.bindTexture(gl.TEXTURE_2D, null);
+        }
+
+        function interpolateSlope(fl,fr,rl,rr){
+
+            function findTerrainHeight(x,y){
+                var xOffset = w/2 * scaleX;
+                var yOffset = h/2 * scaleY;
+
+                x+=xOffset;
+                y+=yOffset;
+
+                var xi = Math.floor(x/scaleX);
+                var yi = Math.floor(y/scaleY);
+
+                var topLeft = terrainData[xi*h+yi];
+
+                var topRight = terrainData[(xi+1)*h+yi];
+                var bottomLeft = terrainData[(xi)*h+yi+1];
+                var bottomRight = terrainData[(xi+1)*h+yi+1];
+
+                var triangle = [bottomLeft,topRight];
+
+                var topLeftDistance = mathUtils.distance2d(topLeft[0],topLeft[2],x,y);
+                var bottomRightDistance = mathUtils.distance2d(bottomRight[0],bottomRight[2],x,y);
+
+                triangle.push(topLeftDistance<bottomRightDistance ? topLeft : bottomRight);
+
+
+
+                var a = mathUtils.distance2d(x,y,triangle[0][0],triangle[0][2]);
+
+
+                var b = mathUtils.distance2d(x,y,triangle[1][0],triangle[1][2]);
+                var c = mathUtils.distance2d(x,y,triangle[2][0],triangle[2][2]);
+
+                var sum = a+b+c;
+
+                var pA = (b+c)/sum;
+                var pB = (a+c)/sum;
+                var pC = (a+b)/sum;
+
+                return pA*triangle[0][1] + pB*triangle[1][1] + pC*triangle[2][1];
             }
+
+            fl[1] = findTerrainHeight(fl[0],fl[2]);
+            fr[1] = findTerrainHeight(fr[0],fr[2]);
+            rl[1] = findTerrainHeight(rl[0],rl[2]);
+            rr[1] = findTerrainHeight(rr[0],rr[2]);
+
+
+            var front = (fl[1]+fr[1])/2;
+            var rear = (rl[1]+rr[1])/2;
+
+            var left = (fl[1]+rl[1])/2;
+            var right = (fr[1]+rr[1])/2;
+
+            var xAngle = Math.atan2(front-rear,fl[2]-rl[2]);
+            var zAngle = Math.atan2(left-right,fl[0]-rl[0]);
+
+            return [xAngle,zAngle];
+        }
+
+        return {
+            render : render,
+            interpolateSlope : interpolateSlope
         };
     }
 
     return {
-        generateTerrainFromImage : generateTerrainFromImage
+        generateTerrainFromImage : generateTerrainFromImage,
+
     };
 
 })();

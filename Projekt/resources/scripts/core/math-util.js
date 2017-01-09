@@ -38,10 +38,18 @@ var mathUtils = (function(){
         vec3.transformMat4(vector,vector,workMatrix);
     }
 
+    function distance2d(x1,y1,x2,y2){
+        var dx = x1-x2;
+        var dy = y1-y2;
+
+        return Math.sqrt(dx*dx+dy*dy);
+    }
+
     return {
         rotateMat4 : rotateMat4,
         rotateCurrMat4 : rotateCurrMat4,
-        rotateVec3 : rotateVec3
+        rotateVec3 : rotateVec3,
+        distance2d : distance2d
     }
 
 })();

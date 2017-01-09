@@ -1,4 +1,4 @@
-app.objects.object = function(position,bodyModel,wheelModel){
+app.objects.object = function(position,bodyModel,wheelModel,terrain){
 
     this.model = bodyModel;
     this.wheelModel = wheelModel;
@@ -7,12 +7,16 @@ app.objects.object = function(position,bodyModel,wheelModel){
     this.rotation = [0,0,0];
     this.worldMatrix = mat4.create();
     this.workMatrix = mat4.create();
-    this.forwardVector = vec3.fromValues(0,0,1);
 
+    this.forwardVector = vec3.fromValues(0,0,1);
+    this.rightVector = vec3.fromValues(1,0,0);
+    this.upVector = vec3.fromValues(0,1,0);
+
+    this.terrain = terrain;
 
     this.acceleration = 0.00005;
     this.breakFactor = 2*this.acceleration;
-    this.rotationFactor = 0.010;
+    this.rotationFactor = 0.15;
 
     this.accelerate = false;
     this.break = false;
@@ -85,20 +89,31 @@ app.objects.object = function(position,bodyModel,wheelModel){
             else if (this.wheelAngle<0) this.wheelAngle = this.wheelAngle<-deltaAngle? this.wheelAngle+deltaAngle : 0;
         }
 
-        var angle = this.wheelAngle/360  * 2 * Math.PI;
-        //var rotSpeed = this.speed*Math.sin(angle)*0.02*deltaTime;
-        var rotSpeed = this.speed*Math.sin(angle)*this.rotationFactor*deltaTime;
-        this.rotation[1]-=rotSpeed*deltaTime;
-
         var forward = this.getForwardVector();
+        var right = this.getRightVector();
+        var cross = right;
+        vec3.cross(cross,right,forward);
 
-        mathUtils.rotateVec3(forward,[0,-angle,0]);
-        //vec3.scale(forward,forward,0.1);
+        var angle = this.wheelAngle/360  * 2 * Math.PI;
+        var rotSpeed = this.speed*Math.sin(angle)*this.rotationFactor*deltaTime;
+
+        var rot = vec3.clone(cross);
+        vec3.normalize(rot,rot);
+        vec3.scale(rot,rot,rotSpeed);
+        vec3.add(this.rotation,this.rotation,rot);
+        //console.log(this.rotation);*/
+        //this.rotation[1]-=rotSpeed;
+
+        mat4.fromRotation(this.workMatrix,angle,cross);
+        vec3.transformMat4(forward,forward,this.workMatrix);
+
         var momentarySpeed = this.speed * Math.cos(angle)*deltaTime;
         vec3.scale(forward,forward,momentarySpeed);
         vec3.add(this.position,this.position,forward);
 
         this.wheelXAngle += momentarySpeed/this.wheelRadius;
+
+        //this.interpolateSlope();
     };
 
     this.setSpeed = function(val){
@@ -113,6 +128,35 @@ app.objects.object = function(position,bodyModel,wheelModel){
         var forward = vec3.clone(this.forwardVector);
         mathUtils.rotateVec3(forward,this.rotation);
         return forward;
+    };
+
+    this.getRightVector = function(){
+        var right = vec3.clone(this.rightVector);
+        mathUtils.rotateVec3(right,this.rotation);
+        return right;
+    };
+
+    this.interpolateSlope = function(){
+        var fl,fr,rl,rr;
+        fl = vec3.clone(this.wheelOffset['fl']);
+        fr = vec3.clone(this.wheelOffset['fr']);
+        rl = vec3.clone(this.wheelOffset['rl']);
+        rr = vec3.clone(this.wheelOffset['rr']);
+
+        vec3.add(fl,fl,this.position);
+        vec3.add(fr,fr,this.position);
+        vec3.add(rl,rl,this.position);
+        vec3.add(rr,rr,this.position);
+
+        if (isNaN(fl[0])) {
+            console.log(this.wheelOffset);
+            console.log(this.position);
+        }
+        var angles = this.terrain.interpolateSlope(fl,fr,rl,rr);
+
+        //console.log(angles);
+        //this.rotation[0] = angles[0];
+        //this.rotation[2] = angles[2];
     };
 
 };
