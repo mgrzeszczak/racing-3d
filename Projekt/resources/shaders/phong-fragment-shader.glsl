@@ -27,6 +27,14 @@ uniform float material_ks;
 varying vec2 fragTexCoord;
 uniform sampler2D sampler;
 
+struct LightInfo {
+    vec3 front;
+    vec3 position;
+    vec3 color;
+    vec3 ambient;
+    float attenuation;
+};
+
 void main()
 {
    float diffuse = max(dot(vecToLight,outNormal), 0.0);
