@@ -10,5 +10,7 @@ app.names = {
     SHADER_CAMERA_POSITION : 'camPos',
     SHADER_TEXTURE_COORDS : 'texture',
     SHADER_UNIFORM_MATERIAL_KD : 'material_kd',
-    SHADER_UNIFORM_MATERIAL_KS : 'material_ks'
+    SHADER_UNIFORM_MATERIAL_KS : 'material_ks',
+    SHADER_UNIFORM_REFLECTOR_LIGHT_COUNT : 'lightCount',
+    SHADER_UNIFORM_REFLECTOR_LIGHTS : 'reflectorLights'
 };

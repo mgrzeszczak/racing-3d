@@ -13,7 +13,6 @@ var app = (function(){
     var lighting;
     var shading;
 
-
     var bots = [];
 
     var carData = [];
@@ -22,6 +21,8 @@ var app = (function(){
     var model;
     var wheel;
     var basePath;
+
+    var reflectorLights = [];
 
     function initialize(){
         initGL();
@@ -56,6 +57,8 @@ var app = (function(){
         cameras[1].followTarget(car);
         cameras[2] = new app.objects.camera([0,50,-50],[0,0,0]);
         camera = cameras[0];
+
+        reflectorLights.push(new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,car,[0,10,10]));
 
         light = new app.objects.light([0,200,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
         world = new app.objects.world(light,[],camera,mat4.create());
@@ -157,6 +160,37 @@ var app = (function(){
 
         gl.uniformMatrix4fv(viewMatrixUniformLocation,false,camera.getViewMatrix());
         gl.uniformMatrix4fv(projectionMatrixUniformLocation,false,world.projectionMatrix);
+
+        updateReflectorLightInformation();
+    }
+
+    function updateReflectorLightInformation(){
+        var reflectorLightCountLocation = gl.getUniformLocation(shaderProgram, app.names.SHADER_UNIFORM_REFLECTOR_LIGHT_COUNT);
+        gl.uniform1i(reflectorLightCountLocation,reflectorLights.length);
+
+        for (var i=0;i<100&&i<reflectorLights.length;i++){
+            var positionLocation = gl.getUniformLocation(shaderProgram, "reflectorLights["+i+"].position");
+            var colorLocation  = gl.getUniformLocation(shaderProgram, "reflectorLights["+i+"].color");
+            var ambientLocation  = gl.getUniformLocation(shaderProgram, "reflectorLights["+i+"].ambient");
+            var frontLocation  = gl.getUniformLocation(shaderProgram, "reflectorLights["+i+"].front");
+            var leftLocation  = gl.getUniformLocation(shaderProgram, "reflectorLights["+i+"].left");
+            var rightLocation  = gl.getUniformLocation(shaderProgram, "reflectorLights["+i+"].right");
+            var attenuationLocation  = gl.getUniformLocation(shaderProgram, "reflectorLights["+i+"].attenuation");
+
+
+            //console.log(reflectorLights[i].getPosition());
+            console.log(reflectorLights[i].getFront());
+
+            gl.uniform3fv(positionLocation,reflectorLights[i].getPosition());
+            gl.uniform3fv(colorLocation,reflectorLights[i].color);
+            gl.uniform3fv(ambientLocation,reflectorLights[i].ambient);
+            gl.uniform3fv(frontLocation,reflectorLights[i].getFront());
+            gl.uniform3fv(leftLocation,reflectorLights[i].getLeft());
+            gl.uniform3fv(rightLocation,reflectorLights[i].getRight());
+
+            gl.uniform1f(attenuationLocation,reflectorLights[i].attenuation);
+        }
+
     }
 
     function initPerformanceMonitor(){

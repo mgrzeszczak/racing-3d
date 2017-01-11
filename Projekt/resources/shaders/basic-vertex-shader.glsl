@@ -32,6 +32,7 @@ void main()
   //worldPosition = (mat3(worldMatrix) * position);
   //outNormal = normalize(mat3(worldMatrix)*inNormal);
   vecToLight = normalize(lightPos-worldPosition);
+
   fragTexCoord = texture;
   gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(position,1.0);
 }
