@@ -38,6 +38,9 @@ var app = (function(){
         var botCar = new app.objects.object([0,0,0],model,wheel,terrain);
         var bot = new app.objects.bot(botCar,path);
         bots.push(bot);
+
+        reflectorLights.push(new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,botCar,[0.8,10,3]));
+        reflectorLights.push(new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,botCar,[-0.8,10,3]));
     }
 
     function initObjects(){
@@ -58,7 +61,8 @@ var app = (function(){
         cameras[2] = new app.objects.camera([0,50,-50],[0,0,0]);
         camera = cameras[0];
 
-        reflectorLights.push(new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,car,[0,10,10]));
+        reflectorLights.push(new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,car,[0.8,10,3]));
+        reflectorLights.push(new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,car,[-0.8,10,3]));
 
         light = new app.objects.light([0,200,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
         world = new app.objects.world(light,[],camera,mat4.create());
@@ -165,8 +169,9 @@ var app = (function(){
     }
 
     function updateReflectorLightInformation(){
-        var reflectorLightCountLocation = gl.getUniformLocation(shaderProgram, app.names.SHADER_UNIFORM_REFLECTOR_LIGHT_COUNT);
-        gl.uniform1i(reflectorLightCountLocation,reflectorLights.length);
+        var reflectorLightCountLocation = gl.getUniformLocation(shaderProgram, "lightCount");
+        //console.log(reflectorLights.length);
+        gl.uniform1i(reflectorLightCountLocation,2);
 
         for (var i=0;i<100&&i<reflectorLights.length;i++){
             var positionLocation = gl.getUniformLocation(shaderProgram, "reflectorLights["+i+"].position");
@@ -179,7 +184,7 @@ var app = (function(){
 
 
             //console.log(reflectorLights[i].getPosition());
-            console.log(reflectorLights[i].getFront());
+            //console.log(reflectorLights[i].getFront());
 
             gl.uniform3fv(positionLocation,reflectorLights[i].getPosition());
             gl.uniform3fv(colorLocation,reflectorLights[i].color);

@@ -1,19 +1,22 @@
-app.objects.reflectorLight = function(color,ambient,attenuation,target,offsetXZ){
+app.objects.reflectorLight = function(color,ambient,attenuation,target,offset){
 
     this.color = new Float32Array(color);
     this.ambient = new Float32Array(ambient);
     this.attenuation = attenuation;
-    this.offsetXZ = offsetXZ;
+    this.offset = offset;
     this.target = target;
 
     this.getPosition = function(){
         var pos = this.target.getPosition();
         var forward = this.target.getForwardVector();
         vec3.normalize(forward,forward);
-        vec3.scale(forward,forward,3);
+
+        vec3.scale(forward,forward,this.offset[2]);
         //vec3.add(pos,pos,this.offset);
 
         var right = this.target.getRightVector();
+        vec3.scale(right,right,this.offset[0]);
+        vec3.add(pos,pos,right);
 
 
         vec3.add(pos,pos,forward);

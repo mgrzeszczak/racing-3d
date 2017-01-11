@@ -39,7 +39,7 @@ struct LightInfo {
 };
 
 uniform LightInfo reflectorLights[100];
-uniform float lightCount;
+uniform int lightCount;
 
 void main()
 {
@@ -63,7 +63,9 @@ void main()
    //diffuse = 0.0;
    //specular = 0.0;
 
-   for (int i=0;i<1;i++){
+   for (int i=0;i<100;i++){
+
+       if (reflectorLights[i].color[0]==0.0) continue;
 
        vec3 front = reflectorLights[i].front;
        vec3 left = reflectorLights[i].left;
