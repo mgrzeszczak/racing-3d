@@ -199,7 +199,7 @@ var app = (function(){
     })();
 
     function onKeyDown(event){
-        console.log(event);
+        //console.log(event);
         switch (event.key){
             case '1':
                 camera = cameras[0];
