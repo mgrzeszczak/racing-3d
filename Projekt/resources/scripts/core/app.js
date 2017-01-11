@@ -24,11 +24,11 @@ var app = (function(){
     }
 
     function initObjects(){
-        terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain2'),3,3,30,'white');
+        terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain2'),3,3,0,'map');
         var model = app.modelLoader.loadModel('resources/models/f1.json',gl,'formula-body');
         var wheel = app.modelLoader.loadModel('resources/models/wheel.json',gl,'formula-wheel');
 
-        car = new app.objects.object([0,20,0],model,wheel,terrain);
+        car = new app.objects.object([0,0,0],model,wheel,terrain);
 
         cameras[0] = new app.objects.camera([0,30,-30],[0,0,0]);
         cameras[0].setTarget(car);
