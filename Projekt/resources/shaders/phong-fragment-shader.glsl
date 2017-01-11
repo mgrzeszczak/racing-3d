@@ -18,7 +18,8 @@ uniform vec3 camPos;
 const float gamma = 2.2;
 const float shininess = 80.0;
 
-const float lightAttenuation = 0.0001;
+//const float lightAttenuation = 0.0001; when light 100
+const float lightAttenuation = 0.00001;
 
 uniform float material_kd;
 uniform float material_ks;

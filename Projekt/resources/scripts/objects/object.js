@@ -24,9 +24,11 @@ app.objects.object = function(position,bodyModel,wheelModel,terrain){
     this.speed = 0.0;
 
     // NAIVE MOVEMENT
-    this.wheelRotationSpeed = 0.5;
+    //this.wheelRotationSpeed = 0.5;
+    this.wheelRotationSpeed = 0.1;
     this.wheelAngle = 0.0;
-    this.maxAngle = 30;
+    //this.maxAngle = 30;
+    this.maxAngle = 20;
 
     this.wheelRotateLeft = false;
     this.wheelRotateRight = false;
@@ -40,7 +42,7 @@ app.objects.object = function(position,bodyModel,wheelModel,terrain){
         mat4.fromTranslation(this.workMatrix,pos);
         mat4.multiply(this.worldMatrix,this.workMatrix,this.worldMatrix);
         mathUtils.rotateCurrMat4(this.worldMatrix,this.rotation);
-        mat4.fromTranslation(this.workMatrix,position);
+        mat4.fromTranslation(this.workMatrix,this.position);
         mat4.multiply(this.worldMatrix,this.workMatrix,this.worldMatrix);
         gl.uniformMatrix4fv(worldMatrixUniformLocation,false,this.worldMatrix);
         this.wheelModel.render(gl,shader);
@@ -51,7 +53,7 @@ app.objects.object = function(position,bodyModel,wheelModel,terrain){
         mathUtils.rotateMat4(this.worldMatrix,this.rotation);
 
         var worldMatrixUniformLocation = gl.getUniformLocation(shader,app.names.SHADER_WORLD_MATRIX);
-        mat4.fromTranslation(this.workMatrix,position);
+        mat4.fromTranslation(this.workMatrix,this.position);
         mat4.multiply(this.worldMatrix,this.workMatrix,this.worldMatrix);
         gl.uniformMatrix4fv(worldMatrixUniformLocation,false,this.worldMatrix);
         this.model.render(gl,shader);
@@ -158,5 +160,12 @@ app.objects.object = function(position,bodyModel,wheelModel,terrain){
         //this.rotation[0] = angles[0];
         //this.rotation[2] = angles[2];
     };
+
+    this.getMomentaryData = function(){
+        var data = {};
+        data.speed = this.speed;
+        data.position = vec3.clone(this.position);
+        return data;
+    }
 
 };

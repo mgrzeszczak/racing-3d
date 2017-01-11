@@ -13,6 +13,16 @@ var app = (function(){
     var lighting;
     var shading;
 
+
+    var bots = [];
+
+    var carData = [];
+    var record = false;
+
+    var model;
+    var wheel;
+    var basePath;
+
     function initialize(){
         initGL();
         initPerformanceMonitor();
@@ -23,12 +33,22 @@ var app = (function(){
         requestAnimationFrame(renderLoop);
     }
 
+    function createBot(path){
+        var botCar = new app.objects.object([0,0,0],model,wheel,terrain);
+        var bot = new app.objects.bot(botCar,path);
+        bots.push(bot);
+    }
+
     function initObjects(){
         terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain2'),3,3,0,'map');
-        var model = app.modelLoader.loadModel('resources/models/f1.json',gl,'formula-body');
-        var wheel = app.modelLoader.loadModel('resources/models/wheel.json',gl,'formula-wheel');
+        model = app.modelLoader.loadModel('resources/models/f1.json',gl,'formula-body');
+        wheel = app.modelLoader.loadModel('resources/models/wheel.json',gl,'white');
 
         car = new app.objects.object([0,0,0],model,wheel,terrain);
+
+        loadTextResource('/resources/paths/test-path.json',function(data){
+           basePath = JSON.parse(data);
+        });
 
         cameras[0] = new app.objects.camera([0,30,-30],[0,0,0]);
         cameras[0].setTarget(car);
@@ -37,7 +57,7 @@ var app = (function(){
         cameras[2] = new app.objects.camera([0,50,-50],[0,0,0]);
         camera = cameras[0];
 
-        light = new app.objects.light([0,100,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
+        light = new app.objects.light([0,200,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
         world = new app.objects.world(light,[],camera,mat4.create());
     }
 
@@ -80,6 +100,10 @@ var app = (function(){
 
     function update(deltaTime){
         car.update(deltaTime);
+        bots.forEach(function(bot){
+            bot.update(deltaTime);
+        });
+        recordData(car);
         cameras.forEach(function(camera){
             camera.update(deltaTime);
         });
@@ -99,9 +123,12 @@ var app = (function(){
         setMaterialUniforms(0.0,1.0);
         terrain.render(gl,shaderProgram);
 
-        setMaterialUniforms(1.5,1.0);
+        setMaterialUniforms(1.0,1.0);
         updateUniforms();
         car.render(gl,shaderProgram);
+        bots.forEach(function(bot){
+            bot.render(gl,shaderProgram);
+        });
     }
 
     function setMaterialUniforms(material_ks,material_kd){
@@ -146,8 +173,33 @@ var app = (function(){
         gl.viewport(0,0,canvas.width,canvas.height);
     }
 
+    function toggleRecording(){
+        record = !record;
+        if (record === false) {
+            createBot(carData);
+            console.log(JSON.stringify(carData));
+            carData = [];
+            //console.log(carData);
+        }
+        else carData = [];
+    }
+
+    var recordData = (function(){
+        var counter = 0;
+        var step = 5;
+
+        return function(object){
+            counter++;
+            if (counter%step===0){
+                counter = 0;
+                carData.push(object.getMomentaryData());
+            }
+        }
+
+    })();
+
     function onKeyDown(event){
-        //console.log(event);
+        console.log(event);
         switch (event.key){
             case '1':
                 camera = cameras[0];
@@ -187,6 +239,12 @@ var app = (function(){
                 break;
             case 'd':
                 car.wheelRotateRight = true;
+                break;
+            case 'Enter':
+                toggleRecording();
+                break;
+            case 'm':
+                createBot(basePath);
                 break;
         }
         return true;
