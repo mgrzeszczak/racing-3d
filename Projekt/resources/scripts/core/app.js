@@ -374,7 +374,8 @@ var app = (function(){
         mathUtils.rotateCurrMat4(workMatrix,[0,-Math.PI/12,Math.PI]);
         mat4.multiply(worldMatrix,workMatrix,worldMatrix);
 
-        mat4.fromTranslation(workMatrix,[1.8,0.3,2]);
+        mat4.fromTranslation(workMatrix,[0.75,0.5,1]);
+        //mat4.fromTranslation(workMatrix,[1.8,0.3,2]);
         mat4.multiply(worldMatrix,workMatrix,worldMatrix);
 
         mathUtils.rotateMat4(workMatrix,rotation);
@@ -398,7 +399,8 @@ var app = (function(){
         mathUtils.rotateCurrMat4(workMatrix,[0,Math.PI/12,Math.PI]);
         mat4.multiply(worldMatrix,workMatrix,worldMatrix);
 
-        mat4.fromTranslation(workMatrix,[-1.8,0.3,2]);
+        mat4.fromTranslation(workMatrix,[-0.75,0.5,1]);
+        //mat4.fromTranslation(workMatrix,[-1.8,0.3,2]);
         mat4.multiply(worldMatrix,workMatrix,worldMatrix);
 
         mathUtils.rotateMat4(workMatrix,rotation);
