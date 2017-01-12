@@ -88,8 +88,8 @@ var app = (function(){
 
     function initObjects(){
         terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain2'),3,3,0,'map');
-        model = app.modelLoader.loadModel('resources/models/f1.json',gl,'formula-body');
-        wheel = app.modelLoader.loadModel('resources/models/wheel.json',gl,'white');
+        model = app.modelLoader.loadModel('resources/models/f1_final.json',gl,'formula-body');
+        wheel = app.modelLoader.loadModel('resources/models/wheel_uv.json',gl,'formula-wheel');
         city = app.modelLoader.loadModel('resources/models/city.json',gl,'white');
         house = app.modelLoader.loadModel('resources/models/house.json',gl,'house');
         steeringWheel = app.modelLoader.loadModel('resources/models/steering-wheel.json',gl,'steering-wheel');
@@ -111,7 +111,8 @@ var app = (function(){
         cameras[1] = new app.objects.camera([0,30,-30],[0,0,0]);
         cameras[1].followTarget(car);
         cameras[2] = new app.objects.camera([0,50,-50],[0,0,0]);
-        cameras[2].relativeTo(car,[0,0.975,0],-0.475);
+        //cameras[2].relativeTo(car,[0,0.975,0],-0.475);
+        cameras[2].relativeTo(car,[0,0.975,0],-0.4);
         camera = cameras[0];
 
         reflectorLights.push(new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,car,[0.8,10,3]));
@@ -328,6 +329,8 @@ var app = (function(){
 
         if (drawMirror === false) return;
 
+        if (camera != cameras[2]) return;
+
         ///// MIRRRORS
 
         gl.useProgram(staticShader);
@@ -404,6 +407,7 @@ var app = (function(){
 
         gl.uniform3fv(cameraPositionUniformLocation,camera.position);
 
+        //mat4.perspective(world.projectionMatrix,glMatrix.toRadian(45),canvas.width/canvas.height,0.1,1000.0);
         mat4.perspective(world.projectionMatrix,glMatrix.toRadian(45),canvas.width/canvas.height,0.1,1000.0);
 
         gl.uniformMatrix4fv(viewMatrixUniformLocation,false,camera.getViewMatrix());
