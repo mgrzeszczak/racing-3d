@@ -92,7 +92,7 @@ var app = (function(){
         wheel = app.modelLoader.loadModel('resources/models/wheel_uv.json',gl,'formula-wheel');
         city = app.modelLoader.loadModel('resources/models/city.json',gl,'white');
         house = app.modelLoader.loadModel('resources/models/house.json',gl,'house');
-        steeringWheel = app.modelLoader.loadModel('resources/models/steering-wheel.json',gl,'steering-wheel');
+        steeringWheel = app.modelLoader.loadModel('resources/models/steering-wheel2.json',gl,'steering-wheel');
         mirror = app.modelLoader.loadModel('resources/models/mirror.json',gl,'white');
 
         var skyboxModel = app.modelLoader.loadModel('resources/models/skybox.json',gl,'sky');
@@ -329,10 +329,36 @@ var app = (function(){
 
         if (drawMirror === false) return;
 
+
+        // STEERING WHEEL
+        var worldMatrix = mat4.create();
+        var workMatrix = mat4.create();
+        var rotation = car.rotation;
+        var position = car.position;
+
+        mat4.identity(worldMatrix);
+        //mat4.fromScaling(worldMatrix,[1,1,1]);
+
+        mathUtils.rotateCurrMat4(workMatrix,[0,-car.wheelAngle/360  * 2 * Math.PI,0]);
+        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
+
+        mathUtils.rotateCurrMat4(workMatrix,[-Math.PI/2,0,0]);
+        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
+
+        mat4.fromTranslation(workMatrix,[0,0.6,0.5]);
+        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
+
+        mathUtils.rotateMat4(workMatrix,rotation);
+        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
+
+        mat4.fromTranslation(workMatrix,position);
+        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
+
+        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,worldMatrix);
+        steeringWheel.render(gl,shaderProgram);
+
         if (camera != cameras[2]) return;
-
         ///// MIRRRORS
-
         gl.useProgram(staticShader);
         var worldMatrixUniformLocation = gl.getUniformLocation(staticShader,app.names.SHADER_WORLD_MATRIX);
 
