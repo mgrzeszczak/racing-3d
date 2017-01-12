@@ -21,6 +21,8 @@ var app = (function(){
     var model;
     var wheel;
     var skybox;
+    var city;
+    var house;
 
     var basePath;
 
@@ -49,12 +51,15 @@ var app = (function(){
         terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain2'),3,3,0,'map');
         model = app.modelLoader.loadModel('resources/models/f1.json',gl,'formula-body');
         wheel = app.modelLoader.loadModel('resources/models/wheel.json',gl,'white');
+        city = app.modelLoader.loadModel('resources/models/city.json',gl,'white');
+        house = app.modelLoader.loadModel('resources/models/house.json',gl,'house');
 
         var skyboxModel = app.modelLoader.loadModel('resources/models/skybox.json',gl,'sky');
-        skybox = new app.objects.skybox(skyboxModel);
-        console.log(skybox);
 
         car = new app.objects.object([0,0,0],model,wheel,terrain);
+
+        skybox = new app.objects.skybox(skyboxModel,car);
+        console.log(skybox);
 
         loadTextResource('/resources/paths/test-path.json',function(data){
            basePath = JSON.parse(data);
@@ -128,17 +133,40 @@ var app = (function(){
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+
+
+        var staticShader = app.shaderLoader.getStaticShader();
+        gl.useProgram(staticShader);
+
+        var viewMatrixUniformLocation = gl.getUniformLocation(staticShader,app.names.SHADER_VIEW_MATRIX);
+        var projectionMatrixUniformLocation = gl.getUniformLocation(staticShader,app.names.SHADER_PROJECTION_MATRIX);
+        var cameraPositionUniformLocation = gl.getUniformLocation(staticShader,app.names.SHADER_CAMERA_POSITION);
+
+        gl.uniform3fv(cameraPositionUniformLocation,camera.position);
+        mat4.perspective(world.projectionMatrix,glMatrix.toRadian(45),canvas.width/canvas.height,0.1,1000.0);
+        gl.uniformMatrix4fv(viewMatrixUniformLocation,false,camera.getViewMatrix());
+        gl.uniformMatrix4fv(projectionMatrixUniformLocation,false,world.projectionMatrix);
+
+        skybox.render(gl,shaderProgram);
+
+
+
         gl.useProgram(shaderProgram);
         updateUniforms();
+
+
 
         var worldMatrixUniformLocation = gl.getUniformLocation(shaderProgram,app.names.SHADER_WORLD_MATRIX);
         gl.uniformMatrix4fv(worldMatrixUniformLocation,false,mat4.create());
         setMaterialUniforms(0.0,1.0);
         terrain.render(gl,shaderProgram);
+//        city.render(gl,shaderProgram);
+        setMaterialUniforms(1.0,1.0);
+        house.render(gl,shaderProgram);
 
         setMaterialUniforms(1.0,1.0);
         updateUniforms();
-        skybox.render(gl,shaderProgram);
+
         car.render(gl,shaderProgram);
 
         //gl.cullFace(gl.FRONT);

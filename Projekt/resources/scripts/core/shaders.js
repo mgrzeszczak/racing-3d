@@ -58,10 +58,15 @@ app.shaderLoader = (function(){
         //loadTextResource('resources/shaders/terrain/terrain-vertex-shader.glsl',function(text){terrainVertexShader=text;});
         //loadTextResource('resources/shaders/terrain/terrain-fragment-shader.glsl',function(text){terrainFragmentShader=text;});
         //shaderPrograms['terrain'] = createShaderProgram(gl,terrainVertexShader,terrainFragmentShader);
+
+        var staticVertexShaderText,staticFragmentShaderText;
+        loadTextResource('resources/shaders/static/vertex-shader.glsl',function(text){staticVertexShaderText=text;});
+        loadTextResource('resources/shaders/static/fragment-shader.glsl',function(text){staticFragmentShaderText=text;});
+        shaderPrograms['static'] = createShaderProgram(gl,staticVertexShaderText,staticFragmentShaderText);
     }
 
-    function getTerrainShader(){
-        return shaderPrograms['terrain'];
+    function getStaticShader(){
+        return shaderPrograms['static'];
     }
 
     function getShaderProgram(shading,lighting){
@@ -72,7 +77,7 @@ app.shaderLoader = (function(){
         createShaderProgram : createShaderProgram,
         initShaders : initShaders,
         getShaderProgram : getShaderProgram,
-        getTerrainShader : getTerrainShader
+        getStaticShader : getStaticShader
     }
 
 })();
