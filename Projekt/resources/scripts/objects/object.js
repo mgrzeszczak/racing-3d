@@ -61,9 +61,9 @@ app.objects.object = function(position,bodyModel,wheelModel,terrain){
         var angle = this.wheelAngle/360  * 2 * Math.PI;
 
         this.renderWheel(gl,shader,this.wheelOffset['fr'],[this.wheelXAngle,-angle,0]);
-        this.renderWheel(gl,shader,this.wheelOffset['fl'],[this.wheelXAngle,-angle+Math.PI,0]);
+        this.renderWheel(gl,shader,this.wheelOffset['fl'],[-this.wheelXAngle,-angle+Math.PI,0]);
         this.renderWheel(gl,shader,this.wheelOffset['rr'],[this.wheelXAngle,0,0]);
-        this.renderWheel(gl,shader,this.wheelOffset['rl'],[this.wheelXAngle,Math.PI,0]);
+        this.renderWheel(gl,shader,this.wheelOffset['rl'],[-this.wheelXAngle,Math.PI,0]);
     };
 
     this.update = function(deltaTime){

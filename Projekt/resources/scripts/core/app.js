@@ -23,15 +23,22 @@ var app = (function(){
     var skybox;
     var city;
     var house;
+    var steeringWheel;
+    var mirror;
 
     var basePath;
 
     var reflectorLights = [];
 
+    var leftMirror;
+    var rightMirror;
+
     function initialize(){
         initGL();
         initPerformanceMonitor();
         initShaders();
+        leftMirror = initMirrorSceneBuffers();
+        rightMirror = initMirrorSceneBuffers();
         initObjects();
         onResize();
         registerCallbacks();
@@ -47,12 +54,46 @@ var app = (function(){
         reflectorLights.push(new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,botCar,[-0.8,10,3]));
     }
 
+   // var mirrorFrameBuffer;
+   // var mirrorTexture;
+   // var renderBuffer;
+
+    function initMirrorSceneBuffers(){
+        var mirrorFrameBuffer = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, mirrorFrameBuffer);
+        mirrorFrameBuffer.width = 512;
+        mirrorFrameBuffer.height = 512;
+
+        var mirrorTexture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, mirrorTexture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+        gl.generateMipmap(gl.TEXTURE_2D);
+
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, mirrorFrameBuffer.width, mirrorFrameBuffer.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+        var renderBuffer = gl.createRenderbuffer();
+        gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, mirrorFrameBuffer.width, mirrorFrameBuffer.height);
+
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, mirrorTexture, 0);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderBuffer);
+
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        return [mirrorFrameBuffer,mirrorTexture,renderBuffer];
+    }
+
     function initObjects(){
         terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain2'),3,3,0,'map');
         model = app.modelLoader.loadModel('resources/models/f1.json',gl,'formula-body');
         wheel = app.modelLoader.loadModel('resources/models/wheel.json',gl,'white');
         city = app.modelLoader.loadModel('resources/models/city.json',gl,'white');
         house = app.modelLoader.loadModel('resources/models/house.json',gl,'house');
+        steeringWheel = app.modelLoader.loadModel('resources/models/steering-wheel.json',gl,'steering-wheel');
+        mirror = app.modelLoader.loadModel('resources/models/mirror.json',gl,'white');
 
         var skyboxModel = app.modelLoader.loadModel('resources/models/skybox.json',gl,'sky');
 
@@ -70,6 +111,7 @@ var app = (function(){
         cameras[1] = new app.objects.camera([0,30,-30],[0,0,0]);
         cameras[1].followTarget(car);
         cameras[2] = new app.objects.camera([0,50,-50],[0,0,0]);
+        cameras[2].relativeTo(car,[0,0.975,0],-0.475);
         camera = cameras[0];
 
         reflectorLights.push(new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,car,[0.8,10,3]));
@@ -110,7 +152,113 @@ var app = (function(){
             prevTime = currTime;
             update(deltaTime);
             performanceMonitor.begin();
-            render();
+
+/*
+            gl.bindFramebuffer(gl.FRAMEBUFFER, mirrorFrameBuffer);
+            gl.viewport(0,0,512,512);
+            var oldCam = camera;
+
+            var forward = car.getForwardVector();
+            var right = car.getRightVector();
+
+            var up = vec3.clone(forward);
+            vec3.cross(up,forward,right);
+            vec3.scale(up,up,0.75);
+
+            vec3.scale(right,right,1);
+
+            var camPos = vec3.clone(car.position);
+
+            vec3.add(camPos,camPos,right);
+            vec3.add(camPos,camPos,up);
+
+            var lookAt = vec3.clone(car.position);
+            vec3.scale(forward,forward,-10);
+            vec3.add(lookAt,lookAt,forward);
+
+
+            camera = new app.objects.camera(camPos,lookAt);
+
+            render(false);
+            gl.bindTexture(gl.TEXTURE_2D, mirrorTexture);
+            gl.generateMipmap(gl.TEXTURE_2D);
+            gl.bindTexture(gl.TEXTURE_2D, null);
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);*/
+
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, leftMirror[0]);
+            gl.viewport(0,0,512,512);
+            var oldCam = camera;
+
+            var forward = car.getForwardVector();
+            var right = car.getRightVector();
+
+            var up = vec3.clone(forward);
+            vec3.cross(up,forward,right);
+            vec3.scale(up,up,0.75);
+
+            vec3.scale(right,right,1);
+
+            var camPos = vec3.clone(car.position);
+
+            vec3.add(camPos,camPos,right);
+            vec3.add(camPos,camPos,up);
+
+            var lookAt = vec3.clone(car.position);
+            vec3.scale(forward,forward,-10);
+            vec3.add(lookAt,lookAt,forward);
+
+
+            camera = new app.objects.camera(camPos,lookAt);
+
+            render(false);
+            gl.bindTexture(gl.TEXTURE_2D, leftMirror[1]);
+            gl.generateMipmap(gl.TEXTURE_2D);
+            gl.bindTexture(gl.TEXTURE_2D, null);
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, rightMirror[0]);
+            gl.viewport(0,0,512,512);
+
+
+            var forward = car.getForwardVector();
+            var right = car.getRightVector();
+
+            var up = vec3.clone(forward);
+            vec3.cross(up,forward,right);
+            vec3.scale(up,up,0.75);
+
+            vec3.scale(right,right,-1);
+
+            var camPos = vec3.clone(car.position);
+
+            vec3.add(camPos,camPos,right);
+            vec3.add(camPos,camPos,up);
+
+            var lookAt = vec3.clone(car.position);
+            vec3.scale(forward,forward,-10);
+            vec3.add(lookAt,lookAt,forward);
+
+
+            camera = new app.objects.camera(camPos,lookAt);
+
+            render(false);
+            gl.bindTexture(gl.TEXTURE_2D, rightMirror[1]);
+            gl.generateMipmap(gl.TEXTURE_2D);
+            gl.bindTexture(gl.TEXTURE_2D, null);
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+
+            gl.viewport(0,0,canvas.width,canvas.height);
+            camera = oldCam;
+            render(true);
+
+
+
             performanceMonitor.end();
             requestAnimationFrame(renderLoop);
         }
@@ -127,16 +275,17 @@ var app = (function(){
         });
     }
 
-    function render() {
+    function render(drawMirror) {
         shaderProgram = app.shaderLoader.getShaderProgram(shading,lighting);
 
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 
-
+        gl.disable(gl.DEPTH_TEST);
         var staticShader = app.shaderLoader.getStaticShader();
         gl.useProgram(staticShader);
+        gl.enable(gl.DEPTH_TEST);
 
         var viewMatrixUniformLocation = gl.getUniformLocation(staticShader,app.names.SHADER_VIEW_MATRIX);
         var projectionMatrixUniformLocation = gl.getUniformLocation(staticShader,app.names.SHADER_PROJECTION_MATRIX);
@@ -151,6 +300,8 @@ var app = (function(){
 
 
 
+
+
         gl.useProgram(shaderProgram);
         updateUniforms();
 
@@ -160,7 +311,7 @@ var app = (function(){
         gl.uniformMatrix4fv(worldMatrixUniformLocation,false,mat4.create());
         setMaterialUniforms(0.0,1.0);
         terrain.render(gl,shaderProgram);
-//        city.render(gl,shaderProgram);
+
         setMaterialUniforms(1.0,1.0);
         house.render(gl,shaderProgram);
 
@@ -174,6 +325,61 @@ var app = (function(){
             bot.render(gl,shaderProgram);
         });
         //gl.cullFace(gl.BACK);
+
+        if (drawMirror === false) return;
+
+        ///// MIRRRORS
+
+        gl.useProgram(staticShader);
+        var worldMatrixUniformLocation = gl.getUniformLocation(staticShader,app.names.SHADER_WORLD_MATRIX);
+
+        var worldMatrix = mat4.create();
+        var workMatrix = mat4.create();
+        var rotation = car.rotation;
+        var position = car.position;
+
+
+        mat4.identity(worldMatrix);
+        mat4.fromScaling(worldMatrix,[5,5,5]);
+
+        mathUtils.rotateCurrMat4(workMatrix,[0,-Math.PI/12,Math.PI]);
+        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
+
+        mat4.fromTranslation(workMatrix,[1.8,0.3,2]);
+        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
+
+        mathUtils.rotateMat4(workMatrix,rotation);
+        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
+
+        mat4.fromTranslation(workMatrix,position);
+        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
+
+        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,worldMatrix);
+        mirror.renderWithTexture(gl,staticShader,leftMirror[1]);
+
+        var worldMatrix = mat4.create();
+        var workMatrix = mat4.create();
+        var rotation = car.rotation;
+        var position = car.position;
+
+
+        mat4.identity(worldMatrix);
+        mat4.fromScaling(worldMatrix,[5,5,5]);
+
+        mathUtils.rotateCurrMat4(workMatrix,[0,Math.PI/12,Math.PI]);
+        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
+
+        mat4.fromTranslation(workMatrix,[-1.8,0.3,2]);
+        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
+
+        mathUtils.rotateMat4(workMatrix,rotation);
+        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
+
+        mat4.fromTranslation(workMatrix,position);
+        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
+
+        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,worldMatrix);
+        mirror.renderWithTexture(gl,staticShader,rightMirror[1]);
     }
 
     function setMaterialUniforms(material_ks,material_kd){

@@ -141,6 +141,16 @@ app.modelLoader = (function(){
             gl.bindTexture(gl.TEXTURE_2D, null);
         }
 
+        function renderWithTexture(gl,shader,tex){
+            gl.bindTexture(gl.TEXTURE_2D, tex);
+            gl.activeTexture(gl.TEXTURE0);
+            model.meshes.forEach(function(mesh){
+                loadMesh(mesh,shader);
+                drawMesh(gl,mesh);
+            });
+            gl.bindTexture(gl.TEXTURE_2D, null);
+        }
+
         model.meshes.forEach(function(mesh){
             mesh.vertexBuffer = initBuffer(gl.ARRAY_BUFFER,new Float32Array(mesh.vertices));
             mesh.indexBuffer = initBuffer(gl.ELEMENT_ARRAY_BUFFER,mesh.faces);
@@ -151,7 +161,8 @@ app.modelLoader = (function(){
 
         return {
             model : model,
-            render : render
+            render : render,
+            renderWithTexture : renderWithTexture
         };
     }
 

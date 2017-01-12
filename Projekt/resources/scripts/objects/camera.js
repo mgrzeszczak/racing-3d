@@ -13,7 +13,25 @@ app.objects.camera = function(position,lookAt){
     this.maxDistance = 7.5;
 
     this.getViewMatrix = function(){
-        mat4.lookAt(this.viewMatrix,this.position,this.lookAt,this.up);
+        var p = this.position;
+        var lookAt = this.lookAt;
+        if (this.offset!=undefined){
+            var pos = vec3.clone(this.position);
+            vec3.add(pos,pos,this.offset);
+
+            var zoff = this.target.getForwardVector();
+            vec3.scale(zoff,zoff,this.z);
+            vec3.add(pos,pos,zoff);
+
+            p = pos;
+
+            var forward = this.target.getForwardVector();
+            vec3.scale(forward,forward,10);
+            lookAt = vec3.clone(this.position);
+            vec3.add(lookAt,lookAt,forward);
+        }
+        mat4.lookAt(this.viewMatrix,p,lookAt,this.up);
+        //mat4.lookAt(this.viewMatrix,this.position,this.lookAt,this.up);
         return this.viewMatrix;
     };
 
@@ -83,5 +101,12 @@ app.objects.camera = function(position,lookAt){
     this.followTarget = function(target){
         this.followedTarget = target;
         this.position = this.calculateTargetPosition(this.followedTarget);
+    };
+
+    this.relativeTo = function(target,offset,z){
+        this.target = target;
+        this.position = target.position;
+        this.offset = offset;
+        this.z = z;
     };
 };
