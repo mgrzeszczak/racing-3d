@@ -20,6 +20,8 @@ var app = (function(){
 
     var model;
     var wheel;
+    var skybox;
+
     var basePath;
 
     var reflectorLights = [];
@@ -47,6 +49,10 @@ var app = (function(){
         terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain2'),3,3,0,'map');
         model = app.modelLoader.loadModel('resources/models/f1.json',gl,'formula-body');
         wheel = app.modelLoader.loadModel('resources/models/wheel.json',gl,'white');
+
+        var skyboxModel = app.modelLoader.loadModel('resources/models/skybox.json',gl,'sky');
+        skybox = new app.objects.skybox(skyboxModel);
+        console.log(skybox);
 
         car = new app.objects.object([0,0,0],model,wheel,terrain);
 
@@ -132,10 +138,14 @@ var app = (function(){
 
         setMaterialUniforms(1.0,1.0);
         updateUniforms();
+        skybox.render(gl,shaderProgram);
         car.render(gl,shaderProgram);
+
+        //gl.cullFace(gl.FRONT);
         bots.forEach(function(bot){
             bot.render(gl,shaderProgram);
         });
+        //gl.cullFace(gl.BACK);
     }
 
     function setMaterialUniforms(material_ks,material_kd){
