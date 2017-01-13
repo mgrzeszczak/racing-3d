@@ -6,7 +6,7 @@ var app = (function(){
     var shaderProgram;
 
     var car, camera, light, world;
-    var terrain;
+    var terrain, ground;
 
     var cameras = [];
 
@@ -29,16 +29,12 @@ var app = (function(){
     var basePath;
 
     var reflectorLights = [];
-
-    var leftMirror;
-    var rightMirror;
+    var mirrors = [];
 
     function initialize(){
         initGL();
         initPerformanceMonitor();
         initShaders();
-        leftMirror = initMirrorSceneBuffers();
-        rightMirror = initMirrorSceneBuffers();
         initObjects();
         onResize();
         registerCallbacks();
@@ -54,15 +50,11 @@ var app = (function(){
         reflectorLights.push(new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,botCar,[-0.8,10,3]));
     }
 
-   // var mirrorFrameBuffer;
-   // var mirrorTexture;
-   // var renderBuffer;
-
-    function initMirrorSceneBuffers(){
+    function createMirrorData(width,height){
         var mirrorFrameBuffer = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, mirrorFrameBuffer);
-        mirrorFrameBuffer.width = 512;
-        mirrorFrameBuffer.height = 512;
+        mirrorFrameBuffer.width = width;
+        mirrorFrameBuffer.height = height;
 
         var mirrorTexture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, mirrorTexture);
@@ -88,16 +80,20 @@ var app = (function(){
 
     function initObjects(){
         terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain2'),3,3,0,'map');
+        ground = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain2'),50,50,0,'sand');
         model = app.modelLoader.loadModel('resources/models/f1_final.json',gl,'formula-body');
         wheel = app.modelLoader.loadModel('resources/models/wheel_uv.json',gl,'formula-wheel');
         city = app.modelLoader.loadModel('resources/models/city.json',gl,'white');
         house = app.modelLoader.loadModel('resources/models/house.json',gl,'house');
-        steeringWheel = app.modelLoader.loadModel('resources/models/steering-wheel2.json',gl,'steering-wheel');
+        steeringWheelModel = app.modelLoader.loadModel('resources/models/steering-wheel2.json',gl,'steering-wheel');
         mirror = app.modelLoader.loadModel('resources/models/mirror.json',gl,'white');
 
         var skyboxModel = app.modelLoader.loadModel('resources/models/skybox.json',gl,'sky');
 
+
+
         car = new app.objects.object([0,0,0],model,wheel,terrain);
+        steeringWheel = new app.objects.steeringWheel(steeringWheelModel,car,[0,0.6,0.5]);
 
         skybox = new app.objects.skybox(skyboxModel,car);
         console.log(skybox);
@@ -111,7 +107,6 @@ var app = (function(){
         cameras[1] = new app.objects.camera([0,30,-30],[0,0,0]);
         cameras[1].followTarget(car);
         cameras[2] = new app.objects.camera([0,50,-50],[0,0,0]);
-        //cameras[2].relativeTo(car,[0,0.975,0],-0.475);
         cameras[2].relativeTo(car,[0,0.975,0],-0.4);
         camera = cameras[0];
 
@@ -120,6 +115,11 @@ var app = (function(){
 
         light = new app.objects.light([0,200,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
         world = new app.objects.world(light,[],camera,mat4.create());
+
+        mirrors.push(
+            new app.objects.mirror(createMirrorData(512,512),car,[1,0.75,0],[0,0,-10],mirror,[5,5,5],[0.75,0.5,1],[0,-Math.PI/12,Math.PI]),
+            new app.objects.mirror(createMirrorData(512,512),car,[-1,0.75,0],[0,0,-10],mirror,[5,5,5],[-0.75,0.5,1],[0,Math.PI/12,Math.PI])
+        );
     }
 
     function initShaders(){
@@ -154,111 +154,13 @@ var app = (function(){
             update(deltaTime);
             performanceMonitor.begin();
 
-/*
-            gl.bindFramebuffer(gl.FRAMEBUFFER, mirrorFrameBuffer);
-            gl.viewport(0,0,512,512);
             var oldCam = camera;
-
-            var forward = car.getForwardVector();
-            var right = car.getRightVector();
-
-            var up = vec3.clone(forward);
-            vec3.cross(up,forward,right);
-            vec3.scale(up,up,0.75);
-
-            vec3.scale(right,right,1);
-
-            var camPos = vec3.clone(car.position);
-
-            vec3.add(camPos,camPos,right);
-            vec3.add(camPos,camPos,up);
-
-            var lookAt = vec3.clone(car.position);
-            vec3.scale(forward,forward,-10);
-            vec3.add(lookAt,lookAt,forward);
-
-
-            camera = new app.objects.camera(camPos,lookAt);
-
-            render(false);
-            gl.bindTexture(gl.TEXTURE_2D, mirrorTexture);
-            gl.generateMipmap(gl.TEXTURE_2D);
-            gl.bindTexture(gl.TEXTURE_2D, null);
-
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);*/
-
-
-            gl.bindFramebuffer(gl.FRAMEBUFFER, leftMirror[0]);
-            gl.viewport(0,0,512,512);
-            var oldCam = camera;
-
-            var forward = car.getForwardVector();
-            var right = car.getRightVector();
-
-            var up = vec3.clone(forward);
-            vec3.cross(up,forward,right);
-            vec3.scale(up,up,0.75);
-
-            vec3.scale(right,right,1);
-
-            var camPos = vec3.clone(car.position);
-
-            vec3.add(camPos,camPos,right);
-            vec3.add(camPos,camPos,up);
-
-            var lookAt = vec3.clone(car.position);
-            vec3.scale(forward,forward,-10);
-            vec3.add(lookAt,lookAt,forward);
-
-
-            camera = new app.objects.camera(camPos,lookAt);
-
-            render(false);
-            gl.bindTexture(gl.TEXTURE_2D, leftMirror[1]);
-            gl.generateMipmap(gl.TEXTURE_2D);
-            gl.bindTexture(gl.TEXTURE_2D, null);
-
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-
-            gl.bindFramebuffer(gl.FRAMEBUFFER, rightMirror[0]);
-            gl.viewport(0,0,512,512);
-
-
-            var forward = car.getForwardVector();
-            var right = car.getRightVector();
-
-            var up = vec3.clone(forward);
-            vec3.cross(up,forward,right);
-            vec3.scale(up,up,0.75);
-
-            vec3.scale(right,right,-1);
-
-            var camPos = vec3.clone(car.position);
-
-            vec3.add(camPos,camPos,right);
-            vec3.add(camPos,camPos,up);
-
-            var lookAt = vec3.clone(car.position);
-            vec3.scale(forward,forward,-10);
-            vec3.add(lookAt,lookAt,forward);
-
-
-            camera = new app.objects.camera(camPos,lookAt);
-
-            render(false);
-            gl.bindTexture(gl.TEXTURE_2D, rightMirror[1]);
-            gl.generateMipmap(gl.TEXTURE_2D);
-            gl.bindTexture(gl.TEXTURE_2D, null);
-
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-
+            mirrors.forEach(function(mirror){
+                mirror.renderToTexture(gl,render);
+            });
             gl.viewport(0,0,canvas.width,canvas.height);
             camera = oldCam;
             render(true);
-
-
 
             performanceMonitor.end();
             requestAnimationFrame(renderLoop);
@@ -276,18 +178,7 @@ var app = (function(){
         });
     }
 
-    function render(drawMirror) {
-        shaderProgram = app.shaderLoader.getShaderProgram(shading,lighting);
-
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-
-        gl.disable(gl.DEPTH_TEST);
-        var staticShader = app.shaderLoader.getStaticShader();
-        gl.useProgram(staticShader);
-        gl.enable(gl.DEPTH_TEST);
-
+    function updateStaticShaderUniforms(staticShader){
         var viewMatrixUniformLocation = gl.getUniformLocation(staticShader,app.names.SHADER_VIEW_MATRIX);
         var projectionMatrixUniformLocation = gl.getUniformLocation(staticShader,app.names.SHADER_PROJECTION_MATRIX);
         var cameraPositionUniformLocation = gl.getUniformLocation(staticShader,app.names.SHADER_CAMERA_POSITION);
@@ -296,121 +187,51 @@ var app = (function(){
         mat4.perspective(world.projectionMatrix,glMatrix.toRadian(45),canvas.width/canvas.height,0.1,1000.0);
         gl.uniformMatrix4fv(viewMatrixUniformLocation,false,camera.getViewMatrix());
         gl.uniformMatrix4fv(projectionMatrixUniformLocation,false,world.projectionMatrix);
+    }
 
+    function render(drawMirror) {
+        shaderProgram = app.shaderLoader.getShaderProgram(shading,lighting);
+        var staticShader = app.shaderLoader.getStaticShader();
+
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        gl.disable(gl.DEPTH_TEST);
+        gl.useProgram(staticShader);
+        updateStaticShaderUniforms(staticShader);
         skybox.render(gl,shaderProgram);
-
-
-
-
+        gl.enable(gl.DEPTH_TEST);
 
         gl.useProgram(shaderProgram);
         updateUniforms();
 
-
-
         var worldMatrixUniformLocation = gl.getUniformLocation(shaderProgram,app.names.SHADER_WORLD_MATRIX);
         gl.uniformMatrix4fv(worldMatrixUniformLocation,false,mat4.create());
+
         setMaterialUniforms(0.0,1.0);
+
         terrain.render(gl,shaderProgram);
+        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,mat4.fromTranslation(mat4.create(),[0,-0.01,0]));
+        ground.render(gl,shaderProgram);
 
         setMaterialUniforms(1.0,1.0);
         house.render(gl,shaderProgram);
-
         setMaterialUniforms(1.0,1.0);
         updateUniforms();
-
         car.render(gl,shaderProgram);
 
-        //gl.cullFace(gl.FRONT);
         bots.forEach(function(bot){
             bot.render(gl,shaderProgram);
         });
-        //gl.cullFace(gl.BACK);
 
         if (drawMirror === false) return;
-
-
-        // STEERING WHEEL
-        var worldMatrix = mat4.create();
-        var workMatrix = mat4.create();
-        var rotation = car.rotation;
-        var position = car.position;
-
-        mat4.identity(worldMatrix);
-        //mat4.fromScaling(worldMatrix,[1,1,1]);
-
-        mathUtils.rotateCurrMat4(workMatrix,[0,-car.wheelAngle/360  * 2 * Math.PI,0]);
-        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
-
-        mathUtils.rotateCurrMat4(workMatrix,[-Math.PI/2,0,0]);
-        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
-
-        mat4.fromTranslation(workMatrix,[0,0.6,0.5]);
-        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
-
-        mathUtils.rotateMat4(workMatrix,rotation);
-        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
-
-        mat4.fromTranslation(workMatrix,position);
-        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
-
-        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,worldMatrix);
         steeringWheel.render(gl,shaderProgram);
 
         if (camera != cameras[2]) return;
-        ///// MIRRRORS
         gl.useProgram(staticShader);
-        var worldMatrixUniformLocation = gl.getUniformLocation(staticShader,app.names.SHADER_WORLD_MATRIX);
-
-        var worldMatrix = mat4.create();
-        var workMatrix = mat4.create();
-        var rotation = car.rotation;
-        var position = car.position;
-
-
-        mat4.identity(worldMatrix);
-        mat4.fromScaling(worldMatrix,[5,5,5]);
-
-        mathUtils.rotateCurrMat4(workMatrix,[0,-Math.PI/12,Math.PI]);
-        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
-
-        mat4.fromTranslation(workMatrix,[0.75,0.5,1]);
-        //mat4.fromTranslation(workMatrix,[1.8,0.3,2]);
-        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
-
-        mathUtils.rotateMat4(workMatrix,rotation);
-        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
-
-        mat4.fromTranslation(workMatrix,position);
-        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
-
-        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,worldMatrix);
-        mirror.renderWithTexture(gl,staticShader,leftMirror[1]);
-
-        var worldMatrix = mat4.create();
-        var workMatrix = mat4.create();
-        var rotation = car.rotation;
-        var position = car.position;
-
-
-        mat4.identity(worldMatrix);
-        mat4.fromScaling(worldMatrix,[5,5,5]);
-
-        mathUtils.rotateCurrMat4(workMatrix,[0,Math.PI/12,Math.PI]);
-        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
-
-        mat4.fromTranslation(workMatrix,[-0.75,0.5,1]);
-        //mat4.fromTranslation(workMatrix,[-1.8,0.3,2]);
-        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
-
-        mathUtils.rotateMat4(workMatrix,rotation);
-        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
-
-        mat4.fromTranslation(workMatrix,position);
-        mat4.multiply(worldMatrix,workMatrix,worldMatrix);
-
-        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,worldMatrix);
-        mirror.renderWithTexture(gl,staticShader,rightMirror[1]);
+        mirrors.forEach(function(mirror){
+           mirror.render(gl,staticShader);
+        });
     }
 
     function setMaterialUniforms(material_ks,material_kd){
@@ -457,10 +278,6 @@ var app = (function(){
             var leftLocation  = gl.getUniformLocation(shaderProgram, "reflectorLights["+i+"].left");
             var rightLocation  = gl.getUniformLocation(shaderProgram, "reflectorLights["+i+"].right");
             var attenuationLocation  = gl.getUniformLocation(shaderProgram, "reflectorLights["+i+"].attenuation");
-
-
-            //console.log(reflectorLights[i].getPosition());
-            //console.log(reflectorLights[i].getFront());
 
             gl.uniform3fv(positionLocation,reflectorLights[i].getPosition());
             gl.uniform3fv(colorLocation,reflectorLights[i].color);
@@ -589,12 +406,21 @@ var app = (function(){
         document.addEventListener('keyup',onKeyUp,true);
     }
 
+    function getCamera(){
+        return camera;
+    }
+    function setCamera(cam){
+        camera = cam;
+    }
+
     return {
         initialize: initialize,
         useShader : function(shader){
             shaderProgram = shader;
             gl.useProgram(shader);
-        }
+        },
+        getCamera : getCamera,
+        setCamera : setCamera
     }
 
 })();
