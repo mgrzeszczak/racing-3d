@@ -45,11 +45,22 @@ var mathUtils = (function(){
         return Math.sqrt(dx*dx+dy*dy);
     }
 
+
+    function worldMatrix(translation,rotation,scaling){
+        var worldMat = mat4.create();
+        mat4.fromScaling(worldMat,scaling);
+        rotateCurrMat4(worldMat,rotation);
+        mat4.fromTranslation(workMatrix,translation);
+        mat4.multiply(worldMat,workMatrix,worldMat);
+        return worldMat;
+    }
+
     return {
         rotateMat4 : rotateMat4,
         rotateCurrMat4 : rotateCurrMat4,
         rotateVec3 : rotateVec3,
-        distance2d : distance2d
+        distance2d : distance2d,
+        worldMatrix : worldMatrix
     }
 
 })();

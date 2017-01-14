@@ -20,7 +20,7 @@ app.objects.reflectorLight = function(color,ambient,attenuation,target,offset){
 
 
         vec3.add(pos,pos,forward);
-        vec3.add(pos,pos,[0,5,0]);
+        vec3.add(pos,pos,[0,1,0]);
         return pos;
     };
 

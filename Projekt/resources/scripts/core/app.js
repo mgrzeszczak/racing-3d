@@ -18,6 +18,8 @@ var app = (function(){
     var carData = [];
     var record = false;
 
+    var static = [];
+
     var model;
     var wheel;
     var skybox;
@@ -50,6 +52,19 @@ var app = (function(){
         reflectorLights.push(new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,botCar,[-0.8,10,3]));
     }
 
+    function generateStaticObjects(count,models,maxScale){
+        var pScale = 1000;
+        while(count>0){
+            var scale = Math.random()*maxScale;
+            var obj = new app.objects.staticObject(models[Math.floor(Math.random()*models.length)],
+                [2*pScale*Math.random()-pScale,0,2*pScale*Math.random()-pScale],
+                [Math.random()*2*Math.PI,Math.random()*2*Math.PI,Math.random()*2*Math.PI],
+                [scale,scale,scale]);
+            static.push(obj);
+            count--;
+        }
+    }
+
     function createMirrorData(width,height){
         var mirrorFrameBuffer = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, mirrorFrameBuffer);
@@ -78,6 +93,8 @@ var app = (function(){
         return [mirrorFrameBuffer,mirrorTexture,renderBuffer];
     }
 
+    var sphereModel;
+
     function initObjects(){
         terrain = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain2'),3,3,0,'map');
         ground = app.terrainLoader.generateTerrainFromImage(gl,document.getElementById('terrain2'),50,50,0,'sand');
@@ -85,11 +102,10 @@ var app = (function(){
         wheel = app.modelLoader.loadModel('resources/models/wheel_uv.json',gl,'formula-wheel');
         city = app.modelLoader.loadModel('resources/models/city.json',gl,'white');
         house = app.modelLoader.loadModel('resources/models/house.json',gl,'house');
-        steeringWheelModel = app.modelLoader.loadModel('resources/models/steering-wheel2.json',gl,'steering-wheel');
+        var steeringWheelModel = app.modelLoader.loadModel('resources/models/steering-wheel2.json',gl,'steering-wheel');
         mirror = app.modelLoader.loadModel('resources/models/mirror.json',gl,'white');
-
+        sphereModel = app.modelLoader.loadModel('resources/models/sphere.json',gl,'white');
         var skyboxModel = app.modelLoader.loadModel('resources/models/skybox.json',gl,'sky');
-
 
 
         car = new app.objects.object([0,0,0],model,wheel,terrain);
@@ -120,6 +136,9 @@ var app = (function(){
             new app.objects.mirror(createMirrorData(512,512),car,[1,0.75,0],[0,0,-10],mirror,[5,5,5],[0.75,0.5,1],[0,-Math.PI/12,Math.PI]),
             new app.objects.mirror(createMirrorData(512,512),car,[-1,0.75,0],[0,0,-10],mirror,[5,5,5],[-0.75,0.5,1],[0,Math.PI/12,Math.PI])
         );
+
+        generateStaticObjects(30,[house],1);
+        generateStaticObjects(100,[sphereModel],30);
     }
 
     function initShaders(){
@@ -215,7 +234,13 @@ var app = (function(){
         ground.render(gl,shaderProgram);
 
         setMaterialUniforms(1.0,1.0);
-        house.render(gl,shaderProgram);
+        static.forEach(function(obj){
+           obj.render(gl,shaderProgram);
+        });
+
+        //gl.uniformMatrix4fv(worldMatrixUniformLocation,false,mat4.fromScaling(mat4.create(),[10,10,10]));
+        //sphereModel.render(gl,shaderProgram);
+        //house.render(gl,shaderProgram);
         setMaterialUniforms(1.0,1.0);
         updateUniforms();
         car.render(gl,shaderProgram);
