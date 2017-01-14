@@ -25,6 +25,7 @@ app.objects.object = function(position,bodyModel,wheelModel,terrain){
 
     // NAIVE MOVEMENT
     //this.wheelRotationSpeed = 0.5;
+    this.reverse = false;
     this.wheelRotationSpeed = 0.1;
     this.wheelAngle = 0.0;
     //this.maxAngle = 30;
@@ -68,13 +69,24 @@ app.objects.object = function(position,bodyModel,wheelModel,terrain){
 
     this.update = function(deltaTime){
 
-        if (this.accelerate === true){
-            this.speed += this.acceleration * deltaTime;
-            if (this.speed >  this.maxSpeed) this.speed = this.maxSpeed;
-        }
-        if  (this.break === true){
-            this.speed -= this.breakFactor*deltaTime;
-            if (this.speed < 0) this.speed = 0;
+        if (this.reverse == false){
+            if (this.accelerate === true){
+                this.speed += this.acceleration * deltaTime;
+                if (this.speed >  this.maxSpeed) this.speed = this.maxSpeed;
+            }
+            if  (this.break === true){
+                this.speed -= this.breakFactor*deltaTime;
+                if (this.speed < 0) this.speed = 0;
+            }
+        } else {
+            if (this.accelerate === true){
+                this.speed -= this.acceleration * deltaTime;
+                if (this.speed <  -this.maxSpeed) this.speed = -this.maxSpeed;
+            }
+            if  (this.break === true){
+                this.speed += this.breakFactor*deltaTime;
+                if (this.speed > 0) this.speed = 0;
+            }
         }
 
         if (this.wheelRotateRight===true){

@@ -126,11 +126,16 @@ var app = (function(){
         cameras[2].relativeTo(car,[0,0.975,0],-0.4);
         camera = cameras[0];
 
-        reflectorLights.push(new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,car,[0.8,10,3]));
-        reflectorLights.push(new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,car,[-0.8,10,3]));
-
         light = new app.objects.light([0,200,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
         world = new app.objects.world(light,[],camera,mat4.create());
+
+        car.reflectors = [
+            new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,car,[0.8,10,3]),
+            new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,car,[-0.8,10,3])
+        ];
+        car.reflectors.forEach(function(r){
+            reflectorLights.push(r);
+        });
 
         mirrors.push(
             new app.objects.mirror(createMirrorData(512,512),car,[1,0.75,0],[0,0,-10],mirror,[5,5,5],[0.75,0.5,1],[0,-Math.PI/12,Math.PI]),
@@ -402,6 +407,15 @@ var app = (function(){
                 break;
             case 'm':
                 createBot(basePath);
+                break;
+            case 'l':
+                car.reflectors.forEach(function(reflector){
+                    if (reflector.color[0]===1) reflector.color = [0,0,0];
+                    else reflector.color = [1,1,1];
+                });
+                break;
+            case 'r':
+                if (car.speed === 0) car.reverse = !car.reverse;
                 break;
         }
         return true;

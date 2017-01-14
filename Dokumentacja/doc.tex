@@ -187,4 +187,103 @@ Powyższe zdjęcie przedstawia szkielet architektury projektu. Poniżej znajduje
 \end{enumerate}
 
 Oprócz tego projekt będzie oparty na wzorcu modułów, który pomaga w organizacji całości kodu oraz uzyskania tzw. 'loose coupling', czyli jak najmniejszej zależności pomiędzy poszczególnymi częściami kodu.
+
+
+
+\subsection{Dokumentacja powykonawcza}
+
+\subsubsection{Wymagania systemowe}
+\par
+Do używania aplikacji lokalnie wymagane są
+\begin{enumerate}
+\item przeglądarka internetowa z obsługą HTML5 oraz WebGL (np. Mozilla Firefox, Chrome)
+\item oprogramowanie umożliwiające postawienia serwera HTTP (np. Python 2.7.x/3.x.x albo PHP)
+\end{enumerate}
+\par
+
+\subsubsection{Biblioteki i licencje}
+\begin{table}[!h]
+\centering
+\caption{Tabela bibliotek zastosowanych w projekcie}
+\label{my-label}
+\begin{tabularx}{\textwidth}{|X|X|X|X|}
+\hline
+\rowcolor[HTML]{C0C0C0} 
+\multicolumn{1}{|l|}{\cellcolor[HTML]{C0C0C0}Lp} & \multicolumn{1}{l|}{\cellcolor[HTML]{C0C0C0}Komponent i wersja} & \multicolumn{1}{l|}{\cellcolor[HTML]{C0C0C0}Opis}                                & \multicolumn{1}{l|}{\cellcolor[HTML]{C0C0C0}Licencja} \\ \hline
+1                                                & glMatrix 2.0& Biblioteka do operacji na wektorach i macierzach                                             & Custom \\\hline 
+\end{tabularx}
+\end{table}
+
+\subsubsection{Instrukcja instalacji}
+\par
+Aplikacja nie wymaga instalacji. W przypadku gdy nie posiada się oprogramowania do postawienia lokalnego serwera HTTP można pobrać i zainstalować zgodnie z instrukcjami np. PHP ze strony http://windows.php.net/download.
+
+\subsubsection{Instrukcja uruchomienia}
+\par
+Aby uruchomić aplikację należy postawić lokalny serwer HTTP w folderze 'Projekt', gdzie znajduje się plik index.html. Aby to zrobić używając PHP, należy:
+\begin{enumerate}
+\item Uruchomić wiersz poleceń.
+\item Przejść do folderu 'Projekt' aplikacji.
+\item Wykonać komendę 'php -S localhost:8080'.
+\end{enumerate}
+Następnie należy uruchomić swoją ulubioną przeglądarkę internetową i otworzyć stronę 'localhost:8080'.
+
+\subsubsection{Instrukcja użycia}
+\par Poniżej znajduję się opis wszystkich klawiszy i ich funkcjonalności w aplikacji:
+\begin{enumerate}
+\item W - gaz
+\item S - hamulec
+\item A - skręcenie kół w lewo
+\item D - skręcenie kół w prawo
+\item R - zmiana pomiędzy biegiem wstecznym a normalnym
+\item L - włączenie/wyłączenie reflektorów
+\item P - włączenie modelu oświetlenia Phonga
+\item B - włączenie modelu oświetlenia Blinna
+\item 8 - włączenie cieniowania stałego
+\item 9 - włączenie cieniowania Gourauda
+\item 0 - włączenie cieniowania Phonga
+\item M - stwórz przeciwnika jeżdżącego po całym torze
+\item Enter - rozpocznij/zakończ nagrywanie trasy samochodu - po zakończeniu stworzony zostanie przeciwnik naśladujący ruch gracza po nagranym torze.
+\end{enumerate}
+
+\subsubsection{Instrukcja utrzymania}
+\par
+Aby wyłączyć aplikację należy zamknąć przeglądarkę oraz wyłączyć serwer HTTP.
+\par
+Uruchamianie aplikacji zostało przedstawione we wcześniejszym punkcie dokumentacji.
+\par
+
+\subsubsection{Raport odstępstw od specyfikacji wymagań}
+\par
+Aplikacja spełnia wszystkie wymagania przedstawione wcześniej w specyfikacji. W trakcie realizacji projektu zostały dodane następujące elementy:
+\begin{enumerate}
+\item Ruchome koła
+\item Kierownica
+\item Lusterka
+\item Reflektory samochodu
+\item Skybox
+\end{enumerate}
+
+\subsection{Lista użytych skrótów}
+
+\begin{table}[!h]
+\centering
+\caption{Lista użytych skrótów}
+\label{my-label}
+\begin{tabularx}{\textwidth}{|X|X|X|}
+\hline
+\rowcolor[HTML]{C0C0C0} 
+\multicolumn{1}{|l|}{\cellcolor[HTML]{C0C0C0}Lp} & \multicolumn{1}{l|}{\cellcolor[HTML]{C0C0C0}Skrót} & \multicolumn{1}{l|}{\cellcolor[HTML]{C0C0C0}Opis}                               \\ \hline
+1                                                & HTML                                                & HyperText Markup Language \\\hline
+2                                                & HTTP                                           & HyperText Transfer Protocol \\\hline
+3                                                & PHP                                                 & Hypertext Preprocessor \\\hline
+\end{tabularx}
+\end{table}
+
+
+\subsection{Bibliografia}
+\begin{enumerate}
+\item Strona bilioteki glMatrix: http://glmatrix.net/
+\end{enumerate}
+
 \end{document}
