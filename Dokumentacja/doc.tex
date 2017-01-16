@@ -87,7 +87,7 @@ Data                 & Autor             & Opis zmiany                          
 \section{Specyfikacja}
 \subsection{Opis biznesowy}
 
-\par Niniejszy program to aplikacja przeglądarkowa, wykorzystująca technologię WebGL w postaci biblioteki three.js. Będzie ona zoptymalizowana głównie pod przeglądarkę Mozilla Firefox. 
+\par Niniejszy program to aplikacja przeglądarkowa, wykorzystująca technologię WebGL. Będzie ona zoptymalizowana głównie pod przeglądarkę Mozilla Firefox. 
 \par Aplikacja jest symulacją wyścigów samochodowych w 3D. Umożliwia użytkownikowi prowadzenie pojazdu za pomocą odpowiednich klawiszy i ściganie się z samochodami sterowanymi przez komputer. Dany będzie jeden, z góry określony tor po którym będzie można jeździć, sam gracz będzie mógł również go opuścić i poruszać się po całej mapie. Samochód będzie przyspieszał, hamował i skręcał w zależności od wciśniętych klawiszy, będzie można również włączyć bieg wsteczny. 
 \par Aplikacja służy również jako pokaz różnych modeli oświetlenia oraz cieniowania. Gracz będzie mógł za pomocą odpowiednich przycisków zmienić obecny model oświetlenia na model Phonga lub Blinna, jak również wybrać jeden z trzech trybów cieniowania (Phonga, Gourauda, stałe). 
 \par Oprócz tego, dostępne będą cztery kamery, umożliwiające obserwowanie wyścigów z różnych perspektyw, między innymi ze środka kabiny oraz zza pojazdu, która będzie płynnie poruszać się z pojadem, wykorzystując do tego interpolację.
@@ -197,7 +197,7 @@ Oprócz tego projekt będzie oparty na wzorcu modułów, który pomaga w organiz
 Do używania aplikacji lokalnie wymagane są
 \begin{enumerate}
 \item przeglądarka internetowa z obsługą HTML5 oraz WebGL (np. Mozilla Firefox, Chrome)
-\item oprogramowanie umożliwiające postawienia serwera HTTP (np. Python 2.7.x/3.x.x albo PHP)
+\item oprogramowanie umożliwiające postawienie serwera HTTP (np. Python 2.7.x/3.x.x albo PHP)
 \end{enumerate}
 \par
 
@@ -216,7 +216,7 @@ Do używania aplikacji lokalnie wymagane są
 
 \subsubsection{Instrukcja instalacji}
 \par
-Aplikacja nie wymaga instalacji. W przypadku gdy nie posiada się oprogramowania do postawienia lokalnego serwera HTTP można pobrać i zainstalować zgodnie z instrukcjami np. PHP ze strony http://windows.php.net/download.
+Aplikacja nie wymaga instalacji. W przypadku, gdy nie posiada się oprogramowania do postawienia lokalnego serwera HTTP można pobrać i zainstalować zgodnie z instrukcjami np. PHP ze strony http://windows.php.net/download.
 
 \subsubsection{Instrukcja uruchomienia}
 \par
@@ -239,11 +239,15 @@ Następnie należy uruchomić swoją ulubioną przeglądarkę internetową i otw
 \item L - włączenie/wyłączenie reflektorów
 \item P - włączenie modelu oświetlenia Phonga
 \item B - włączenie modelu oświetlenia Blinna
+\item 1 - włączenie kamery śledzącej pojazd, znajdującej się w stałym miejscu
+\item 2 - włączenie kamery zza pojazdu
+\item 3 - włączenie kamery zza kierownicy
+\item 4 - włączenie kamery stałej, obserwującej całą mapę
 \item 8 - włączenie cieniowania stałego
 \item 9 - włączenie cieniowania Gourauda
 \item 0 - włączenie cieniowania Phonga
-\item M - stwórz przeciwnika jeżdżącego po całym torze
-\item Enter - rozpocznij/zakończ nagrywanie trasy samochodu - po zakończeniu stworzony zostanie przeciwnik naśladujący ruch gracza po nagranym torze.
+\item M - stworzenie przeciwnika jeżdżącego po całym torze
+\item Enter - rozpoczęcie/zakończenie nagrywania trasy samochodu - po zakończeniu stworzony zostanie przeciwnik naśladujący ruch gracza po nagranym torze.
 \end{enumerate}
 
 \subsubsection{Instrukcja utrzymania}

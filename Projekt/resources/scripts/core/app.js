@@ -124,14 +124,15 @@ var app = (function(){
         cameras[1].followTarget(car);
         cameras[2] = new app.objects.camera([0,50,-50],[0,0,0]);
         cameras[2].relativeTo(car,[0,0.975,0],-0.4);
+        cameras[3] = new app.objects.camera([0,200,-400],[0,0,0]);
         camera = cameras[0];
 
         light = new app.objects.light([0,200,0],[1.0,1.0,1.0],[0.01,0.01,0.01]);
         world = new app.objects.world(light,[],camera,mat4.create());
 
         car.reflectors = [
-            new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,car,[0.8,10,3]),
-            new app.objects.reflectorLight([1,1,1],[0,0,0],0.01,car,[-0.8,10,3])
+            new app.objects.reflectorLight([0,0,0],[0,0,0],0.01,car,[0.8,10,3]),
+            new app.objects.reflectorLight([0,0,0],[0,0,0],0.01,car,[-0.8,10,3])
         ];
         car.reflectors.forEach(function(r){
             reflectorLights.push(r);
@@ -235,7 +236,7 @@ var app = (function(){
         setMaterialUniforms(0.0,1.0);
 
         terrain.render(gl,shaderProgram);
-        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,mat4.fromTranslation(mat4.create(),[0,-0.01,0]));
+        gl.uniformMatrix4fv(worldMatrixUniformLocation,false,mat4.fromTranslation(mat4.create(),[0,-0.2,0]));
         ground.render(gl,shaderProgram);
 
         setMaterialUniforms(1.0,1.0);
@@ -371,6 +372,9 @@ var app = (function(){
                 break;
             case '3':
                 camera = cameras[2];
+                break;
+            case '4':
+                camera = cameras[3];
                 break;
             case 'b':
                 lighting = app.lighting.BLINN;
