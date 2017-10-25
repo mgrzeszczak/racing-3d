@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <title>Racing 3D</title>
     <link rel="stylesheet" href="resources/styles/style.css"/>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"/>
 </head>
 <body>
 <canvas id="gl-canvas" style="overflow: hidden;">HTML5 not supported.</canvas>
@@ -19,6 +20,12 @@
 <img id="sky" src="resources/textures/sky.jpg" width="0" height="0"/>
 <img id="house" src="resources/textures/house.jpg" width="0" height="0"/>
 <img id="steering-wheel" src="resources/textures/steering-wheel.jpg" width="0" height="0"/>
+
+<script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 
 <script type="text/javascript" src="resources/scripts/lib/stats.js"></script>
@@ -47,7 +54,26 @@
 <script type="text/javascript" src="resources/scripts/objects/static-obj.js"></script>
 <script type="text/javascript" src="resources/scripts/objects/steering-wheel.js"></script>
 
-
+<script>
+toastr.options = {
+  "closeButton": false,
+  "debug": false,
+  "newestOnTop": false,
+  "progressBar": false,
+  "positionClass": "toast-top-right",
+  "preventDuplicates": false,
+  "onclick": null,
+  "showDuration": "30000",
+  "hideDuration": "1000",
+  "timeOut": "30000",
+  "extendedTimeOut": "1000",
+  "showEasing": "swing",
+  "hideEasing": "linear",
+  "showMethod": "fadeIn",
+  "hideMethod": "fadeOut"
+};
+toastr["success"]("W - accelerate<br>S - break<br>A - turn left<br>D - turn right<br>R - toggle reverse mode(only when car is not moving)<br>L - toggle lights<br>P - Phong lighting<br>B - Blinn lighting<br>1,2,3,4 - different cameras<br>8,9,0 - flat, Gouraud, Phong shading respectively","Controls");
+</script>
 
 
 
